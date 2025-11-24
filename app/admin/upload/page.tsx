@@ -47,10 +47,26 @@ export default function UploadPage() {
         body: formData,
       })
 
-      const data = await response.json()
+      // レスポンスのContent-Typeを確認
+      const contentType = response.headers.get('content-type')
+      let data: any = {}
+
+      if (contentType && contentType.includes('application/json')) {
+        // JSONレスポンスの場合
+        try {
+          data = await response.json()
+        } catch (jsonError) {
+          const text = await response.text()
+          throw new Error(`JSON解析エラー: ${text.substring(0, 200)}`)
+        }
+      } else {
+        // JSONでない場合（エラーメッセージなど）
+        const text = await response.text()
+        throw new Error(`サーバーエラー (${response.status}): ${text.substring(0, 200)}`)
+      }
 
       if (!response.ok) {
-        throw new Error(data.error || 'アップロードに失敗しました')
+        throw new Error(data.error || data.message || `アップロードに失敗しました (${response.status})`)
       }
 
       setMessage({
@@ -66,6 +82,7 @@ export default function UploadPage() {
         fileInput.value = ''
       }
     } catch (err) {
+      console.error('アップロードエラー:', err)
       setMessage({
         type: 'error',
         text: err instanceof Error ? err.message : '予期しないエラーが発生しました',
