@@ -60,13 +60,13 @@ export async function POST(request: NextRequest) {
 
     console.log(`[Ingest] ファイル情報: ${file.name}, サイズ: ${(file.size / 1024 / 1024).toFixed(2)}MB`)
 
-    // ファイルサイズの制限（10MB）
-    const maxSize = 10 * 1024 * 1024 // 10MB
+    // ファイルサイズの制限（Vercel無料プランの制限: 4.5MB）
+    const maxSize = 4.5 * 1024 * 1024 // 4.5MB
     if (file.size > maxSize) {
       console.error(`[Ingest] ファイルサイズが大きすぎます: ${(file.size / 1024 / 1024).toFixed(2)}MB`)
       return NextResponse.json(
-        { success: false, error: `ファイルサイズが大きすぎます。最大10MBまで対応しています。現在のサイズ: ${(file.size / 1024 / 1024).toFixed(2)}MB` },
-        { status: 400 }
+        { success: false, error: `ファイルサイズが大きすぎます。Vercel無料プランの制限により、最大4.5MBまで対応しています。現在のサイズ: ${(file.size / 1024 / 1024).toFixed(2)}MB` },
+        { status: 413 }
       )
     }
 

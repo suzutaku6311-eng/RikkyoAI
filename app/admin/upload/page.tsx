@@ -13,10 +13,22 @@ export default function UploadPage() {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0]
     if (selectedFile) {
-      if (selectedFile.type !== 'application/pdf') {
+      // ファイルタイプのチェック
+      if (selectedFile.type !== 'application/pdf' && !selectedFile.name.toLowerCase().endsWith('.pdf')) {
         setMessage({ type: 'error', text: 'PDFファイルのみ対応しています' })
         return
       }
+
+      // ファイルサイズのチェック（Vercel無料プランの制限: 4.5MB）
+      const maxSize = 4.5 * 1024 * 1024 // 4.5MB
+      if (selectedFile.size > maxSize) {
+        setMessage({ 
+          type: 'error', 
+          text: `ファイルサイズが大きすぎます。最大4.5MBまで対応しています。現在のサイズ: ${(selectedFile.size / 1024 / 1024).toFixed(2)}MB` 
+        })
+        return
+      }
+
       setFile(selectedFile)
       if (!title) {
         setTitle(selectedFile.name.replace(/\.pdf$/i, ''))
@@ -47,6 +59,17 @@ export default function UploadPage() {
         body: formData,
       })
 
+      console.log('[Upload] レスポンス受信:', response.status, response.statusText)
+
+      // ステータスコードに応じたエラーハンドリング
+      if (response.status === 413) {
+        throw new Error('ファイルサイズが大きすぎます。Vercel無料プランの制限により、4.5MB以下のファイルのみアップロードできます。')
+      }
+
+      if (response.status === 404) {
+        throw new Error('APIエンドポイントが見つかりません。ページをリロードして再度お試しください。')
+      }
+
       // レスポンスのContent-Typeを確認
       const contentType = response.headers.get('content-type')
       let data: any = {}
@@ -57,11 +80,13 @@ export default function UploadPage() {
           data = await response.json()
         } catch (jsonError) {
           const text = await response.text()
+          console.error('[Upload] JSON解析エラー:', text)
           throw new Error(`JSON解析エラー: ${text.substring(0, 200)}`)
         }
       } else {
         // JSONでない場合（エラーメッセージなど）
         const text = await response.text()
+        console.error('[Upload] 非JSONレスポンス:', text)
         throw new Error(`サーバーエラー (${response.status}): ${text.substring(0, 200)}`)
       }
 
