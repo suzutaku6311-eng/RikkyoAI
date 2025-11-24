@@ -2,3 +2,24 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  body {
+    @apply bg-stone-50 text-stone-900 antialiased;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Yu Gothic', 'Meiryo', sans-serif;
+  }
+}
+
+@layer utilities {
+  .retro-border {
+    @apply border-2 border-stone-800;
+  }
+  
+  .retro-shadow {
+    box-shadow: 4px 4px 0px 0px rgba(0, 0, 0, 0.1);
+  }
+  
+  .retro-shadow-sm {
+    box-shadow: 2px 2px 0px 0px rgba(0, 0, 0, 0.1);
+  }
+}
+

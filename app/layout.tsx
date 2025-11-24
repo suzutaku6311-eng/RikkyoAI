@@ -15,33 +15,33 @@ export default function RootLayout({
   return (
     <html lang="ja">
       <body>
-        <nav className="bg-white shadow-sm border-b">
+        <nav className="bg-stone-100 border-b-2 border-stone-800">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between h-16">
               <div className="flex">
                 <Link
                   href="/"
-                  className="flex items-center px-2 py-4 text-xl font-bold text-gray-900 hover:text-blue-600"
+                  className="flex items-center px-2 py-4 text-xl font-bold text-stone-900 hover:text-stone-700 tracking-tight"
                 >
-                  社内文書AI
+                  <span className="border-b-2 border-stone-800 pb-1">社内文書AI</span>
                 </Link>
               </div>
-              <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-2">
                 <Link
                   href="/ask"
-                  className="px-3 py-2 text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded-md"
+                  className="px-4 py-2 text-sm font-medium text-stone-800 hover:text-stone-900 hover:bg-stone-200 border border-stone-800 retro-shadow-sm transition-all"
                 >
                   文書検索
                 </Link>
                 <Link
                   href="/admin/documents"
-                  className="px-3 py-2 text-sm font-medium text-gray-700 hover:text-purple-600 hover:bg-gray-50 rounded-md"
+                  className="px-4 py-2 text-sm font-medium text-stone-800 hover:text-stone-900 hover:bg-stone-200 border border-stone-800 retro-shadow-sm transition-all"
                 >
                   文書一覧
                 </Link>
                 <Link
                   href="/admin/upload"
-                  className="px-3 py-2 text-sm font-medium text-gray-700 hover:text-green-600 hover:bg-gray-50 rounded-md"
+                  className="px-4 py-2 text-sm font-medium text-stone-800 hover:text-stone-900 hover:bg-stone-200 border border-stone-800 retro-shadow-sm transition-all"
                 >
                   文書アップロード
                 </Link>

@@ -76,37 +76,46 @@ export default function UploadPage() {
   }
 
   return (
-    <div className="min-h-screen p-8 bg-gray-50">
-      <div className="max-w-2xl mx-auto">
-        <h1 className="text-3xl font-bold mb-6">文書アップロード</h1>
+    <div className="min-h-screen p-8 bg-stone-50">
+      <div className="max-w-3xl mx-auto">
+        <div className="mb-8">
+          <h1 className="text-4xl font-bold mb-2 text-stone-900 tracking-tight border-b-4 border-stone-800 pb-3 inline-block">
+            文書アップロード
+          </h1>
+          <p className="text-stone-600 text-sm font-mono mt-2">
+            Upload PDF → Process → Index
+          </p>
+        </div>
 
-        <form onSubmit={handleSubmit} className="bg-white p-6 rounded-lg shadow-md">
-          <div className="mb-4">
+        <form onSubmit={handleSubmit} className="bg-stone-100 p-8 border-2 border-stone-800 retro-shadow-sm">
+          <div className="mb-6">
             <label
               htmlFor="file-input"
-              className="block text-sm font-medium text-gray-700 mb-2"
+              className="block text-sm font-bold text-stone-900 mb-3 border-b border-stone-800 pb-1"
             >
               PDFファイル
             </label>
-            <input
-              id="file-input"
-              type="file"
-              accept=".pdf,application/pdf"
-              onChange={handleFileChange}
-              className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-              disabled={loading}
-            />
-            {file && (
-              <p className="mt-2 text-sm text-gray-600">
-                選択中: {file.name} ({(file.size / 1024 / 1024).toFixed(2)} MB)
-              </p>
-            )}
+            <div className="border-2 border-stone-800 bg-stone-50 p-4 retro-shadow-sm">
+              <input
+                id="file-input"
+                type="file"
+                accept=".pdf,application/pdf"
+                onChange={handleFileChange}
+                className="block w-full text-sm text-stone-700 file:mr-4 file:py-2 file:px-4 file:border-2 file:border-stone-800 file:bg-stone-200 file:text-stone-900 file:font-bold file:cursor-pointer hover:file:bg-stone-300 file:retro-shadow-sm"
+                disabled={loading}
+              />
+              {file && (
+                <p className="mt-3 text-sm text-stone-700 font-mono bg-stone-200 px-3 py-2 border border-stone-800">
+                  選択中: {file.name} ({(file.size / 1024 / 1024).toFixed(2)} MB)
+                </p>
+              )}
+            </div>
           </div>
 
           <div className="mb-6">
             <label
               htmlFor="title-input"
-              className="block text-sm font-medium text-gray-700 mb-2"
+              className="block text-sm font-bold text-stone-900 mb-3 border-b border-stone-800 pb-1"
             >
               文書タイトル（オプション）
             </label>
@@ -116,44 +125,47 @@ export default function UploadPage() {
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="ファイル名から自動設定されます"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-5 py-3 border-2 border-stone-800 bg-stone-50 text-stone-900 placeholder-stone-500 focus:outline-none focus:bg-white focus:border-stone-900 font-medium retro-shadow-sm"
               disabled={loading}
             />
           </div>
 
           {message && (
             <div
-              className={`mb-4 p-4 rounded-lg ${
+              className={`mb-6 p-5 border-2 retro-shadow-sm ${
                 message.type === 'success'
-                  ? 'bg-green-100 border border-green-400 text-green-700'
-                  : 'bg-red-100 border border-red-400 text-red-700'
+                  ? 'bg-green-50 border-green-800 text-green-900'
+                  : 'bg-red-50 border-red-800 text-red-900'
               }`}
             >
-              {message.text}
+              <div className="font-bold mb-1">{message.type === 'success' ? '成功' : 'エラー'}</div>
+              <div className="text-sm">{message.text}</div>
             </div>
           )}
 
-          <div className="flex gap-4">
+          <div className="flex gap-3">
             <button
               type="submit"
               disabled={loading || !file}
-              className="flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+              className="flex-1 px-6 py-4 bg-stone-900 text-stone-50 border-2 border-stone-800 font-bold hover:bg-stone-800 disabled:bg-stone-400 disabled:border-stone-400 disabled:cursor-not-allowed retro-shadow-sm transition-all"
             >
               {loading ? 'アップロード中...' : 'アップロード'}
             </button>
             <button
               type="button"
               onClick={() => router.push('/ask')}
-              className="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300"
+              className="px-6 py-4 bg-stone-200 text-stone-900 border-2 border-stone-800 font-bold hover:bg-stone-300 retro-shadow-sm transition-all"
             >
               質問画面へ
             </button>
           </div>
         </form>
 
-        <div className="mt-6 bg-blue-50 p-4 rounded-lg">
-          <h2 className="font-semibold mb-2">アップロード手順</h2>
-          <ol className="list-decimal list-inside space-y-1 text-sm text-gray-700">
+        <div className="mt-8 bg-stone-200 p-6 border-2 border-stone-800 retro-shadow-sm">
+          <h2 className="text-lg font-bold mb-3 text-stone-900 border-b-2 border-stone-800 pb-2 inline-block">
+            アップロード手順
+          </h2>
+          <ol className="list-decimal list-inside space-y-2 text-sm text-stone-800 leading-relaxed">
             <li>PDFファイルを選択してください</li>
             <li>文書タイトルを入力（オプション）</li>
             <li>「アップロード」ボタンをクリック</li>

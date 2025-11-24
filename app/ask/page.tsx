@@ -74,67 +74,77 @@ export default function AskPage() {
   }
 
   return (
-    <div className="min-h-screen p-8 bg-gray-50">
-      <div className="max-w-4xl mx-auto">
-        <h1 className="text-3xl font-bold mb-6">社内文書AI検索</h1>
+    <div className="min-h-screen p-8 bg-stone-50">
+      <div className="max-w-5xl mx-auto">
+        <div className="mb-8">
+          <h1 className="text-4xl font-bold mb-2 text-stone-900 tracking-tight border-b-4 border-stone-800 pb-3 inline-block">
+            社内文書AI検索
+          </h1>
+          <p className="text-stone-600 text-sm font-mono mt-2">
+            Query Documents → Generate Answer
+          </p>
+        </div>
 
         <form onSubmit={handleSubmit} className="mb-8">
-          <div className="flex gap-4">
+          <div className="flex gap-3">
             <input
               type="text"
               value={question}
               onChange={(e) => setQuestion(e.target.value)}
               placeholder="質問を入力してください（例: 社内規程について教えてください）"
-              className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="flex-1 px-5 py-4 border-2 border-stone-800 bg-stone-50 text-stone-900 placeholder-stone-500 focus:outline-none focus:bg-white focus:border-stone-900 font-medium retro-shadow-sm"
               disabled={loading}
             />
             <button
               type="submit"
               disabled={loading || !question.trim()}
-              className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+              className="px-8 py-4 bg-stone-900 text-stone-50 border-2 border-stone-800 font-bold hover:bg-stone-800 disabled:bg-stone-400 disabled:border-stone-400 disabled:cursor-not-allowed retro-shadow-sm transition-all"
             >
-              {loading ? '検索中...' : '質問する'}
+              {loading ? '検索中...' : '検索'}
             </button>
           </div>
         </form>
 
         {error && (
-          <div className="mb-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
-            {error}
+          <div className="mb-6 p-5 bg-red-50 border-2 border-red-800 text-red-900 retro-shadow-sm">
+            <div className="font-bold mb-1">エラー</div>
+            <div>{error}</div>
           </div>
         )}
 
         {answer && (
           <div className="mb-8">
-            <h2 className="text-2xl font-semibold mb-4">回答</h2>
-            <div className="bg-white p-6 rounded-lg shadow-md">
-              <p className="whitespace-pre-wrap text-gray-800">{answer}</p>
+            <h2 className="text-2xl font-bold mb-4 text-stone-900 border-b-2 border-stone-800 pb-2 inline-block">
+              回答
+            </h2>
+            <div className="bg-stone-100 p-8 border-2 border-stone-800 retro-shadow-sm">
+              <p className="whitespace-pre-wrap text-stone-900 leading-relaxed">{answer}</p>
             </div>
           </div>
         )}
 
         {sources.length > 0 && (
           <div>
-            <h2 className="text-2xl font-semibold mb-4">
+            <h2 className="text-2xl font-bold mb-4 text-stone-900 border-b-2 border-stone-800 pb-2 inline-block">
               参照文書 ({sources.length}件)
             </h2>
             <div className="space-y-4">
               {sources.map((source, index) => (
                 <div
                   key={source.id}
-                  className="bg-white p-4 rounded-lg shadow-md border-l-4 border-blue-500"
+                  className="bg-stone-100 p-6 border-2 border-stone-800 retro-shadow-sm"
                 >
-                  <div className="flex justify-between items-start mb-2">
-                    <h3 className="font-semibold text-gray-800">
+                  <div className="flex justify-between items-start mb-3">
+                    <h3 className="font-bold text-stone-900 text-lg border-b border-stone-800 pb-1">
                       {source.documentTitle || `文書 ${index + 1}`}
                     </h3>
                     {source.similarity && (
-                      <span className="text-sm text-gray-500">
-                        類似度: {(source.similarity * 100).toFixed(1)}%
+                      <span className="text-sm text-stone-600 font-mono bg-stone-200 px-2 py-1 border border-stone-800">
+                        {(source.similarity * 100).toFixed(1)}%
                       </span>
                     )}
                   </div>
-                  <p className="text-gray-600 text-sm">{source.content}</p>
+                  <p className="text-stone-700 text-sm leading-relaxed">{source.content}</p>
                 </div>
               ))}
             </div>
@@ -142,8 +152,9 @@ export default function AskPage() {
         )}
 
         {!answer && !loading && !error && (
-          <div className="text-center text-gray-500 py-12">
-            <p>質問を入力して、社内文書を検索してください。</p>
+          <div className="text-center text-stone-500 py-16 border-2 border-dashed border-stone-400 bg-stone-100">
+            <p className="text-lg font-medium">質問を入力して、社内文書を検索してください。</p>
+            <p className="text-sm mt-2 font-mono text-stone-600">Enter your question above</p>
           </div>
         )}
       </div>
