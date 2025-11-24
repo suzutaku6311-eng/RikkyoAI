@@ -81,6 +81,11 @@ export default function UploadPage() {
       if (fileInput) {
         fileInput.value = ''
       }
+
+      // 3秒後に文書一覧ページにリダイレクト
+      setTimeout(() => {
+        router.push('/admin/documents')
+      }, 3000)
     } catch (err) {
       console.error('アップロードエラー:', err)
       setMessage({

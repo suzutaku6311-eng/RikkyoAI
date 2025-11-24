@@ -8,9 +8,12 @@ export const runtime = 'nodejs'
  */
 export async function GET() {
   try {
+    console.log('[Documents API] 文書一覧取得開始')
+    
     // 環境変数のチェック
     const supabaseCheck = checkSupabaseEnv()
     if (!supabaseCheck.isValid || !supabase) {
+      console.error('[Documents API] Supabase環境変数エラー:', supabaseCheck.error)
       return NextResponse.json(
         { error: supabaseCheck.error || 'Supabase client is not initialized' },
         { status: 500 }
@@ -21,26 +24,34 @@ export async function GET() {
     const supabaseClient = supabase
 
     // 文書一覧を取得
+    console.log('[Documents API] Supabaseから文書を取得中...')
     const { data: documents, error: docsError } = await supabaseClient
       .from('documents')
       .select('*')
       .order('uploaded_at', { ascending: false })
 
     if (docsError) {
-      console.error('文書取得エラー:', docsError)
+      console.error('[Documents API] 文書取得エラー:', docsError)
       return NextResponse.json(
-        { error: '文書の取得に失敗しました' },
+        { error: `文書の取得に失敗しました: ${docsError.message}` },
         { status: 500 }
       )
     }
 
+    console.log(`[Documents API] 文書取得完了: ${documents?.length || 0}件`)
+
     // 各文書のチャンク数を取得
+    console.log('[Documents API] チャンク数を取得中...')
     const documentsWithChunks = await Promise.all(
       (documents || []).map(async (doc) => {
         const { count, error: chunksError } = await supabaseClient
           .from('chunks')
           .select('*', { count: 'exact', head: true })
           .eq('document_id', doc.id)
+
+        if (chunksError) {
+          console.warn(`[Documents API] チャンク数取得エラー (文書ID: ${doc.id}):`, chunksError)
+        }
 
         return {
           ...doc,
@@ -49,11 +60,13 @@ export async function GET() {
       })
     )
 
+    console.log(`[Documents API] 処理完了: ${documentsWithChunks.length}件の文書を返します`)
+
     return NextResponse.json({
       documents: documentsWithChunks,
     })
   } catch (error) {
-    console.error('文書一覧取得エラー:', error)
+    console.error('[Documents API] 予期しないエラー:', error)
     return NextResponse.json(
       {
         error:

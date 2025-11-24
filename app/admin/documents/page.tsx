@@ -24,15 +24,27 @@ export default function DocumentsPage() {
   const fetchDocuments = async () => {
     try {
       setLoading(true)
+      setError(null)
+      console.log('[Documents] 文書一覧を取得中...')
+      
       const response = await fetch('/api/admin/documents')
+      console.log('[Documents] レスポンス受信:', response.status, response.statusText)
       
       if (!response.ok) {
-        throw new Error('文書の取得に失敗しました')
+        const errorData = await response.json().catch(() => ({ error: 'レスポンスの解析に失敗しました' }))
+        console.error('[Documents] APIエラー:', errorData)
+        throw new Error(errorData.error || `文書の取得に失敗しました (${response.status})`)
       }
 
       const data = await response.json()
+      console.log('[Documents] データ受信:', { 
+        documentsCount: data.documents?.length || 0,
+        documents: data.documents 
+      })
+      
       setDocuments(data.documents || [])
     } catch (err) {
+      console.error('[Documents] エラー発生:', err)
       setError(err instanceof Error ? err.message : '予期しないエラーが発生しました')
     } finally {
       setLoading(false)
@@ -72,12 +84,21 @@ export default function DocumentsPage() {
               Document Index
             </p>
           </div>
-          <Link
-            href="/admin/upload"
-            className="px-6 py-3 bg-stone-900 text-stone-50 border-2 border-stone-800 font-bold hover:bg-stone-800 retro-shadow-sm transition-all"
-          >
-            + 新規アップロード
-          </Link>
+          <div className="flex gap-3">
+            <button
+              onClick={fetchDocuments}
+              disabled={loading}
+              className="px-4 py-2 bg-stone-200 text-stone-900 border-2 border-stone-800 font-bold hover:bg-stone-300 disabled:bg-stone-400 disabled:cursor-not-allowed retro-shadow-sm transition-all text-sm"
+            >
+              🔄 更新
+            </button>
+            <Link
+              href="/admin/upload"
+              className="px-6 py-3 bg-stone-900 text-stone-50 border-2 border-stone-800 font-bold hover:bg-stone-800 retro-shadow-sm transition-all"
+            >
+              + 新規アップロード
+            </Link>
+          </div>
         </div>
 
         {loading && (
