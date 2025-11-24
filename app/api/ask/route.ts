@@ -1,0 +1,93 @@
+import { NextRequest, NextResponse } from 'next/server'
+import { searchSimilarChunks, generateAnswer } from '@/lib/rag'
+import { supabase } from '@/lib/supabase'
+import type { ChunkSummary } from '@/lib/rag'
+
+export const runtime = 'nodejs'
+
+/**
+ * RAG検索回答API
+ * 入力: { question: string }
+ * 出力: { answer: string, sources: ChunkSummary[] }
+ */
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json()
+    const { question } = body
+
+    console.log('質問を受信:', question)
+
+    if (!question || typeof question !== 'string' || question.trim().length === 0) {
+      return NextResponse.json(
+        { error: '質問が指定されていません' },
+        { status: 400 }
+      )
+    }
+
+    // 類似チャンクを検索
+    console.log('類似チャンクの検索を開始...')
+    let chunks: any[] = []
+    try {
+      chunks = await searchSimilarChunks(question.trim(), 10)
+      console.log(`検索結果: ${chunks.length}件のチャンクが見つかりました`)
+    } catch (searchError) {
+      console.error('検索エラー:', searchError)
+      return NextResponse.json(
+        {
+          error: `検索エラー: ${searchError instanceof Error ? searchError.message : '不明なエラー'}`,
+        },
+        { status: 500 }
+      )
+    }
+
+    if (chunks.length === 0) {
+      console.log('関連するチャンクが見つかりませんでした')
+      // チャンクの総数を確認
+      const { count } = await supabase
+        .from('chunks')
+        .select('*', { count: 'exact', head: true })
+      
+      console.log(`データベース内のチャンク総数: ${count || 0}`)
+      
+      // デバッグ情報を含めて返す
+      return NextResponse.json({
+        answer: '関連する文書が見つかりませんでした。別の質問を試してください。',
+        sources: [],
+        debug: {
+          message: 'チャンクが見つかりませんでした',
+          totalChunksInDB: count || 0,
+          suggestion: 'ターミナルのログで「有効なチャンク」と「無効なチャンク」の数を確認してください',
+        },
+      })
+    }
+
+    // LLMで回答を生成
+    console.log('LLM回答生成を開始...')
+    const answer = await generateAnswer(question.trim(), chunks)
+    console.log('LLM回答生成完了')
+
+    return NextResponse.json({
+      answer,
+      sources: chunks.map((chunk) => ({
+        id: chunk.id,
+        content: chunk.content.substring(0, 200) + '...', // プレビュー用に短縮
+        documentId: chunk.documentId,
+        documentTitle: chunk.documentTitle,
+        chunkIndex: chunk.chunkIndex,
+        similarity: chunk.similarity,
+      })),
+    })
+  } catch (error) {
+    console.error('RAG検索APIエラー:', error)
+    return NextResponse.json(
+      {
+        error:
+          error instanceof Error
+            ? error.message
+            : '予期しないエラーが発生しました',
+      },
+      { status: 500 }
+    )
+  }
+}
+
