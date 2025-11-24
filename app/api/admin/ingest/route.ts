@@ -18,9 +18,9 @@ export async function POST(request: NextRequest) {
   try {
     // 環境変数のチェック
     const supabaseCheck = checkSupabaseEnv()
-    if (!supabaseCheck.isValid) {
+    if (!supabaseCheck.isValid || !supabase) {
       return NextResponse.json(
-        { success: false, error: supabaseCheck.error },
+        { success: false, error: supabaseCheck.error || 'Supabase client is not initialized' },
         { status: 500 }
       )
     }

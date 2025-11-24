@@ -13,9 +13,9 @@ export async function DELETE(
   try {
     // 環境変数のチェック
     const supabaseCheck = checkSupabaseEnv()
-    if (!supabaseCheck.isValid) {
+    if (!supabaseCheck.isValid || !supabase) {
       return NextResponse.json(
-        { error: supabaseCheck.error },
+        { error: supabaseCheck.error || 'Supabase client is not initialized' },
         { status: 500 }
       )
     }
