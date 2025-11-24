@@ -16,6 +16,7 @@ export default function DocumentsPage() {
   const [documents, setDocuments] = useState<Document[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
 
   useEffect(() => {
     fetchDocuments()
@@ -57,18 +58,33 @@ export default function DocumentsPage() {
     }
 
     try {
+      console.log('[Documents] 削除開始:', documentId)
       const response = await fetch(`/api/admin/documents/${documentId}`, {
         method: 'DELETE',
       })
 
+      console.log('[Documents] 削除レスポンス:', response.status, response.statusText)
+
       if (!response.ok) {
-        throw new Error('削除に失敗しました')
+        const errorData = await response.json().catch(() => ({ error: 'レスポンスの解析に失敗しました' }))
+        console.error('[Documents] 削除エラー:', errorData)
+        throw new Error(errorData.error || `削除に失敗しました (${response.status})`)
       }
 
+      const data = await response.json()
+      console.log('[Documents] 削除成功:', data)
+
       // リストを更新
-      fetchDocuments()
+      await fetchDocuments()
+      
+      // 成功メッセージを表示（オプション）
+      setMessage({ type: 'success', text: '文書を削除しました' })
+      setTimeout(() => setMessage(null), 3000)
     } catch (err) {
-      alert(err instanceof Error ? err.message : '削除に失敗しました')
+      console.error('[Documents] 削除エラー:', err)
+      const errorMessage = err instanceof Error ? err.message : '削除に失敗しました'
+      setError(errorMessage)
+      alert(errorMessage)
     }
   }
 
@@ -105,6 +121,19 @@ export default function DocumentsPage() {
           <div className="text-center py-16 border-2 border-dashed border-stone-400 bg-stone-100">
             <p className="text-stone-600 font-medium">読み込み中...</p>
             <p className="text-stone-500 text-sm font-mono mt-2">Loading...</p>
+          </div>
+        )}
+
+        {message && (
+          <div
+            className={`mb-6 p-5 border-2 retro-shadow-sm ${
+              message.type === 'success'
+                ? 'bg-green-50 border-green-800 text-green-900'
+                : 'bg-red-50 border-red-800 text-red-900'
+            }`}
+          >
+            <div className="font-bold mb-1">{message.type === 'success' ? '成功' : 'エラー'}</div>
+            <div>{message.text}</div>
           </div>
         )}
 
