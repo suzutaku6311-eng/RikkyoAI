@@ -15,12 +15,15 @@ export async function POST(request: NextRequest) {
   try {
     // 環境変数のチェック
     const supabaseCheck = checkSupabaseEnv()
-    if (!supabaseCheck.isValid) {
+    if (!supabaseCheck.isValid || !supabase) {
       return NextResponse.json(
-        { error: supabaseCheck.error },
+        { error: supabaseCheck.error || 'Supabase client is not initialized' },
         { status: 500 }
       )
     }
+
+    // supabaseがnullでないことを確認（TypeScript用）
+    const supabaseClient = supabase
 
     const openaiCheck = checkOpenAIEnv()
     if (!openaiCheck.isValid) {
@@ -61,7 +64,7 @@ export async function POST(request: NextRequest) {
     if (chunks.length === 0) {
       console.log('関連するチャンクが見つかりませんでした')
       // チャンクの総数を確認
-      const { count } = await supabase
+      const { count } = await supabaseClient
         .from('chunks')
         .select('*', { count: 'exact', head: true })
       
