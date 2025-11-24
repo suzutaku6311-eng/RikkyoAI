@@ -25,6 +25,9 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // supabaseがnullでないことを確認（TypeScript用）
+    const supabaseClient = supabase
+
     const openaiCheck = checkOpenAIEnv()
     if (!openaiCheck.isValid) {
       return NextResponse.json(
@@ -88,7 +91,7 @@ export async function POST(request: NextRequest) {
 
     // 文書情報をSupabaseに保存
     const documentTitle = title || file.name.replace(/\.pdf$/i, '')
-    const { data: documentData, error: documentError } = await supabase
+    const { data: documentData, error: documentError } = await supabaseClient
       .from('documents')
       .insert({
         title: documentTitle,
@@ -122,14 +125,14 @@ export async function POST(request: NextRequest) {
     const batchSize = 100
     for (let i = 0; i < chunksToInsert.length; i += batchSize) {
       const batch = chunksToInsert.slice(i, i + batchSize)
-      const { error: chunksError } = await supabase
+      const { error: chunksError } = await supabaseClient
         .from('chunks')
         .insert(batch)
 
       if (chunksError) {
         console.error('チャンク保存エラー:', chunksError)
         // エラーが発生した場合、既に保存された文書を削除
-        await supabase.from('documents').delete().eq('id', documentId)
+        await supabaseClient.from('documents').delete().eq('id', documentId)
         return NextResponse.json(
           { success: false, error: 'チャンクの保存に失敗しました' },
           { status: 500 }

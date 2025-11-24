@@ -20,6 +20,9 @@ export async function DELETE(
       )
     }
 
+    // supabaseがnullでないことを確認（TypeScript用）
+    const supabaseClient = supabase
+
     const documentId = params.id
 
     if (!documentId) {
@@ -30,7 +33,7 @@ export async function DELETE(
     }
 
     // チャンクを削除（CASCADEで自動削除されるが、明示的に削除）
-    const { error: chunksError } = await supabase
+    const { error: chunksError } = await supabaseClient
       .from('chunks')
       .delete()
       .eq('document_id', documentId)
@@ -41,7 +44,7 @@ export async function DELETE(
     }
 
     // 文書を削除
-    const { error: docError } = await supabase
+    const { error: docError } = await supabaseClient
       .from('documents')
       .delete()
       .eq('id', documentId)

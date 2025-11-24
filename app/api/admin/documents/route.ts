@@ -17,8 +17,11 @@ export async function GET() {
       )
     }
 
+    // supabaseがnullでないことを確認（TypeScript用）
+    const supabaseClient = supabase
+
     // 文書一覧を取得
-    const { data: documents, error: docsError } = await supabase
+    const { data: documents, error: docsError } = await supabaseClient
       .from('documents')
       .select('*')
       .order('uploaded_at', { ascending: false })
@@ -34,7 +37,7 @@ export async function GET() {
     // 各文書のチャンク数を取得
     const documentsWithChunks = await Promise.all(
       (documents || []).map(async (doc) => {
-        const { count, error: chunksError } = await supabase
+        const { count, error: chunksError } = await supabaseClient
           .from('chunks')
           .select('*', { count: 'exact', head: true })
           .eq('document_id', doc.id)
