@@ -41,9 +41,8 @@ export async function DELETE(
     console.log('[Delete API] チャンクを削除中...')
     const { error: chunksError, count: deletedChunksCount } = await supabaseClient
       .from('chunks')
-      .delete()
+      .delete({ count: 'exact' })
       .eq('document_id', documentId)
-      .select('*', { count: 'exact', head: true })
 
     if (chunksError) {
       console.warn('[Delete API] チャンク削除エラー（続行）:', chunksError)
@@ -56,9 +55,8 @@ export async function DELETE(
     console.log('[Delete API] 文書を削除中...')
     const { error: docError, count: deletedDocCount } = await supabaseClient
       .from('documents')
-      .delete()
+      .delete({ count: 'exact' })
       .eq('id', documentId)
-      .select('*', { count: 'exact', head: true })
 
     if (docError) {
       console.error('[Delete API] 文書削除エラー:', docError)
