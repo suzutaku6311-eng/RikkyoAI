@@ -60,6 +60,10 @@ export function splitIntoChunks(text: string, minChunkSize = 300, maxChunkSize =
  * OpenAI text-embedding-3-large を使用
  */
 export async function generateEmbedding(text: string): Promise<number[]> {
+  if (!openai) {
+    throw new Error('OpenAI client is not initialized. Please check OPENAI_API_KEY environment variable.')
+  }
+  
   try {
     const response = await openai.embeddings.create({
       model: 'text-embedding-3-large',
@@ -77,6 +81,10 @@ export async function generateEmbedding(text: string): Promise<number[]> {
  * 複数のチャンクから一括でEmbeddingを生成する
  */
 export async function generateEmbeddingsForChunks(chunks: string[]): Promise<number[][]> {
+  if (!openai) {
+    throw new Error('OpenAI client is not initialized. Please check OPENAI_API_KEY environment variable.')
+  }
+  
   try {
     const response = await openai.embeddings.create({
       model: 'text-embedding-3-large',

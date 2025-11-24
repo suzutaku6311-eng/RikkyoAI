@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import pdfParse from 'pdf-parse'
-import { supabase } from '@/lib/supabase'
+import { supabase, checkSupabaseEnv } from '@/lib/supabase'
+import { checkOpenAIEnv } from '@/lib/openai'
 import { splitIntoChunks, generateEmbeddingsForChunks } from '@/lib/embeddings'
 
 // pdf-parseはNode.jsのBufferを使うため、Node.js Runtimeを指定
@@ -15,6 +16,23 @@ export const runtime = 'nodejs'
  */
 export async function POST(request: NextRequest) {
   try {
+    // 環境変数のチェック
+    const supabaseCheck = checkSupabaseEnv()
+    if (!supabaseCheck.isValid) {
+      return NextResponse.json(
+        { success: false, error: supabaseCheck.error },
+        { status: 500 }
+      )
+    }
+
+    const openaiCheck = checkOpenAIEnv()
+    if (!openaiCheck.isValid) {
+      return NextResponse.json(
+        { success: false, error: openaiCheck.error },
+        { status: 500 }
+      )
+    }
+
     // FormDataからファイルを取得
     const formData = await request.formData()
     const file = formData.get('file') as File | null

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase'
+import { supabase, checkSupabaseEnv } from '@/lib/supabase'
 
 export const runtime = 'nodejs'
 
@@ -11,6 +11,15 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
+    // 環境変数のチェック
+    const supabaseCheck = checkSupabaseEnv()
+    if (!supabaseCheck.isValid) {
+      return NextResponse.json(
+        { error: supabaseCheck.error },
+        { status: 500 }
+      )
+    }
+
     const documentId = params.id
 
     if (!documentId) {

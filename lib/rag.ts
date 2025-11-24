@@ -21,6 +21,10 @@ export async function searchSimilarChunks(
   question: string,
   limit = 10
 ): Promise<ChunkSummary[]> {
+  if (!supabase) {
+    throw new Error('Supabase client is not initialized. Please check NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY environment variables.')
+  }
+  
   try {
     console.log(`質問のEmbedding生成を開始: "${question}"`)
     // 質問をEmbedding化
@@ -214,6 +218,10 @@ export async function generateAnswer(
   question: string,
   chunks: ChunkSummary[]
 ): Promise<string> {
+  if (!openai) {
+    throw new Error('OpenAI client is not initialized. Please check OPENAI_API_KEY environment variable.')
+  }
+  
   try {
     // コンテキストを構築
     const context = chunks

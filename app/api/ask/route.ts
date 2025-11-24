@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { searchSimilarChunks, generateAnswer } from '@/lib/rag'
-import { supabase } from '@/lib/supabase'
+import { supabase, checkSupabaseEnv } from '@/lib/supabase'
+import { checkOpenAIEnv } from '@/lib/openai'
 import type { ChunkSummary } from '@/lib/rag'
 
 export const runtime = 'nodejs'
@@ -12,6 +13,23 @@ export const runtime = 'nodejs'
  */
 export async function POST(request: NextRequest) {
   try {
+    // 環境変数のチェック
+    const supabaseCheck = checkSupabaseEnv()
+    if (!supabaseCheck.isValid) {
+      return NextResponse.json(
+        { error: supabaseCheck.error },
+        { status: 500 }
+      )
+    }
+
+    const openaiCheck = checkOpenAIEnv()
+    if (!openaiCheck.isValid) {
+      return NextResponse.json(
+        { error: openaiCheck.error },
+        { status: 500 }
+      )
+    }
+
     const body = await request.json()
     const { question } = body
 

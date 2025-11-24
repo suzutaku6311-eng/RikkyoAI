@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase'
+import { supabase, checkSupabaseEnv } from '@/lib/supabase'
 
 export const runtime = 'nodejs'
 
@@ -8,6 +8,15 @@ export const runtime = 'nodejs'
  */
 export async function GET() {
   try {
+    // 環境変数のチェック
+    const supabaseCheck = checkSupabaseEnv()
+    if (!supabaseCheck.isValid) {
+      return NextResponse.json(
+        { error: supabaseCheck.error },
+        { status: 500 }
+      )
+    }
+
     // 文書一覧を取得
     const { data: documents, error: docsError } = await supabase
       .from('documents')
