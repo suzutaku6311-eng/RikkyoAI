@@ -26,9 +26,12 @@ export default function DocumentsPage() {
     try {
       setLoading(true)
       setError(null)
+      setMessage(null)
       console.log('[Documents] 文書一覧を取得中...')
       
-      const response = await fetch('/api/admin/documents')
+      const response = await fetch('/api/admin/documents', {
+        cache: 'no-store', // キャッシュを無効化して最新データを取得
+      })
       console.log('[Documents] レスポンス受信:', response.status, response.statusText)
       
       if (!response.ok) {
@@ -43,6 +46,7 @@ export default function DocumentsPage() {
         documents: data.documents 
       })
       
+      // 状態を確実に更新
       setDocuments(data.documents || [])
     } catch (err) {
       console.error('[Documents] エラー発生:', err)
@@ -57,6 +61,12 @@ export default function DocumentsPage() {
       return
     }
 
+    // 楽観的更新: 即座にローカル状態から削除
+    const deletedDocument = documents.find(doc => doc.id === documentId)
+    setDocuments(prevDocs => prevDocs.filter(doc => doc.id !== documentId))
+    setError(null)
+    setMessage(null)
+
     try {
       console.log('[Documents] 削除開始:', documentId)
       const response = await fetch(`/api/admin/documents/${documentId}`, {
@@ -66,25 +76,43 @@ export default function DocumentsPage() {
       console.log('[Documents] 削除レスポンス:', response.status, response.statusText)
 
       if (!response.ok) {
+        // エラーが発生した場合、削除した文書を元に戻す
+        if (deletedDocument) {
+          setDocuments(prevDocs => [...prevDocs, deletedDocument].sort((a, b) => 
+            new Date(b.uploaded_at).getTime() - new Date(a.uploaded_at).getTime()
+          ))
+        }
+        
         const errorData = await response.json().catch(() => ({ error: 'レスポンスの解析に失敗しました' }))
         console.error('[Documents] 削除エラー:', errorData)
-        throw new Error(errorData.error || `削除に失敗しました (${response.status})`)
+        const errorMessage = errorData.error || `削除に失敗しました (${response.status})`
+        setError(errorMessage)
+        setMessage({ type: 'error', text: errorMessage })
+        return
       }
 
       const data = await response.json()
       console.log('[Documents] 削除成功:', data)
 
-      // リストを更新
+      // 最新の状態を取得（念のため）
       await fetchDocuments()
       
-      // 成功メッセージを表示（オプション）
+      // 成功メッセージを表示
       setMessage({ type: 'success', text: '文書を削除しました' })
       setTimeout(() => setMessage(null), 3000)
     } catch (err) {
       console.error('[Documents] 削除エラー:', err)
+      
+      // エラーが発生した場合、削除した文書を元に戻す
+      if (deletedDocument) {
+        setDocuments(prevDocs => [...prevDocs, deletedDocument].sort((a, b) => 
+          new Date(b.uploaded_at).getTime() - new Date(a.uploaded_at).getTime()
+        ))
+      }
+      
       const errorMessage = err instanceof Error ? err.message : '削除に失敗しました'
       setError(errorMessage)
-      alert(errorMessage)
+      setMessage({ type: 'error', text: errorMessage })
     }
   }
 
