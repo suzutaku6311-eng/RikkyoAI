@@ -107,9 +107,9 @@ export default function UploadPage() {
         fileInput.value = ''
       }
 
-      // 3秒後に文書一覧ページにリダイレクト
+      // 3秒後に文書一覧ページにリダイレクト（タイムスタンプ付きでキャッシュを回避）
       setTimeout(() => {
-        router.push('/admin/documents')
+        router.push(`/admin/documents?t=${Date.now()}`)
       }, 3000)
     } catch (err) {
       console.error('アップロードエラー:', err)

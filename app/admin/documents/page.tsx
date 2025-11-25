@@ -29,8 +29,13 @@ export default function DocumentsPage() {
       setMessage(null)
       console.log('[Documents] 文書一覧を取得中...')
       
-      const response = await fetch('/api/admin/documents', {
+      // タイムスタンプを追加してキャッシュを回避
+      const timestamp = Date.now()
+      const response = await fetch(`/api/admin/documents?t=${timestamp}`, {
         cache: 'no-store', // キャッシュを無効化して最新データを取得
+        headers: {
+          'Cache-Control': 'no-cache',
+        },
       })
       console.log('[Documents] レスポンス受信:', response.status, response.statusText)
       
