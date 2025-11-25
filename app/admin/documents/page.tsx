@@ -20,6 +20,12 @@ export default function DocumentsPage() {
 
   useEffect(() => {
     fetchDocuments()
+    // ウィンドウがフォーカスされた時も再取得（タブ切り替え時の更新）
+    const handleFocus = () => {
+      fetchDocuments()
+    }
+    window.addEventListener('focus', handleFocus)
+    return () => window.removeEventListener('focus', handleFocus)
   }, [])
 
   const fetchDocuments = async () => {
