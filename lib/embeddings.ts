@@ -85,36 +85,83 @@ export async function generateEmbeddingsForChunks(chunks: string[]): Promise<num
     throw new Error('OpenAI client is not initialized. Please check OPENAI_API_KEY environment variable.')
   }
   
+  // チャンク数が多い場合はバッチ処理に分割（OpenAI APIの制限を考慮）
+  const batchSize = 100 // 一度に処理する最大チャンク数
+  const allEmbeddings: number[][] = []
+  
   try {
-    console.log(`[Embeddings] OpenAI API呼び出し開始: ${chunks.length}個のチャンク`)
-    const response = await openai.embeddings.create({
-      model: 'text-embedding-3-large',
-      input: chunks,
-    })
+    console.log(`[Embeddings] OpenAI API呼び出し開始: ${chunks.length}個のチャンク（バッチサイズ: ${batchSize}）`)
     
-    console.log(`[Embeddings] OpenAI API呼び出し成功: ${response.data.length}個のEmbeddingを取得`)
-    
-    if (response.data.length !== chunks.length) {
-      console.error(`[Embeddings] Embedding数が一致しません: ${response.data.length}個 / ${chunks.length}個`)
-      throw new Error(`Embedding数が一致しません: ${response.data.length}個 / ${chunks.length}個`)
+    // バッチごとに処理
+    for (let i = 0; i < chunks.length; i += batchSize) {
+      const batch = chunks.slice(i, i + batchSize)
+      const batchNumber = Math.floor(i / batchSize) + 1
+      const totalBatches = Math.ceil(chunks.length / batchSize)
+      
+      console.log(`[Embeddings] バッチ ${batchNumber}/${totalBatches} 処理中: ${batch.length}個のチャンク`)
+      
+      try {
+        const response = await openai.embeddings.create({
+          model: 'text-embedding-3-large',
+          input: batch,
+        })
+        
+        console.log(`[Embeddings] バッチ ${batchNumber}/${totalBatches} 成功: ${response.data.length}個のEmbeddingを取得`)
+        
+        if (response.data.length !== batch.length) {
+          console.error(`[Embeddings] バッチ ${batchNumber} のEmbedding数が一致しません: ${response.data.length}個 / ${batch.length}個`)
+          throw new Error(`バッチ ${batchNumber} のEmbedding数が一致しません: ${response.data.length}個 / ${batch.length}個`)
+        }
+        
+        const batchEmbeddings = response.data.map(item => item.embedding)
+        allEmbeddings.push(...batchEmbeddings)
+        
+        // レート制限を避けるために少し待機（最後のバッチ以外）
+        if (i + batchSize < chunks.length) {
+          await new Promise(resolve => setTimeout(resolve, 100)) // 100ms待機
+        }
+      } catch (batchError: any) {
+        console.error(`[Embeddings] バッチ ${batchNumber}/${totalBatches} エラー:`, batchError)
+        
+        // エラーの詳細をログに記録
+        if (batchError?.response) {
+          console.error(`[Embeddings] バッチ ${batchNumber} OpenAI APIレスポンスエラー:`, batchError.response.status, JSON.stringify(batchError.response.data))
+        }
+        if (batchError?.message) {
+          console.error(`[Embeddings] バッチ ${batchNumber} エラーメッセージ:`, batchError.message)
+        }
+        
+        // より詳細なエラーメッセージを返す
+        const errorMessage = batchError?.message || 'Embedding生成に失敗しました'
+        const statusCode = batchError?.response?.status || 'unknown'
+        const statusText = batchError?.response?.statusText || ''
+        const errorData = batchError?.response?.data ? JSON.stringify(batchError.response.data) : ''
+        
+        throw new Error(`バッチ ${batchNumber} のEmbedding生成に失敗しました: ${errorMessage} (Status: ${statusCode} ${statusText}) ${errorData}`)
+      }
     }
     
-    return response.data.map(item => item.embedding)
+    console.log(`[Embeddings] すべてのバッチ処理完了: 合計 ${allEmbeddings.length}個のEmbeddingを取得`)
+    
+    if (allEmbeddings.length !== chunks.length) {
+      console.error(`[Embeddings] 最終的なEmbedding数が一致しません: ${allEmbeddings.length}個 / ${chunks.length}個`)
+      throw new Error(`最終的なEmbedding数が一致しません: ${allEmbeddings.length}個 / ${chunks.length}個`)
+    }
+    
+    return allEmbeddings
   } catch (error: any) {
     console.error('[Embeddings] 一括Embedding生成エラー:', error)
     
     // エラーの詳細をログに記録
     if (error?.response) {
-      console.error('[Embeddings] OpenAI APIレスポンスエラー:', error.response.status, error.response.data)
+      console.error('[Embeddings] OpenAI APIレスポンスエラー:', error.response.status, JSON.stringify(error.response.data))
     }
     if (error?.message) {
       console.error('[Embeddings] エラーメッセージ:', error.message)
     }
     
-    // より詳細なエラーメッセージを返す
-    const errorMessage = error?.message || 'Embedding生成に失敗しました'
-    const statusCode = error?.response?.status || 'unknown'
-    throw new Error(`Embedding生成に失敗しました: ${errorMessage} (Status: ${statusCode})`)
+    // エラーをそのまま再スロー（既に詳細なメッセージが含まれている）
+    throw error
   }
 }
 
