@@ -28,3 +28,13 @@ CREATE TABLE chunks (
 -- ベクトル検索用インデックス（データが蓄積されてから実行推奨）
 -- CREATE INDEX ON chunks USING ivfflat (embedding vector_cosine_ops);
 
+
+
+
+
+
+
+
+
+
+

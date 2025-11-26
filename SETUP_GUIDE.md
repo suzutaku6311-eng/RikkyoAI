@@ -135,3 +135,13 @@ node -e "console.log('SUPABASE_URL:', process.env.NEXT_PUBLIC_SUPABASE_URL ? '�
 - `SUPABASE_SCHEMA.md` - テーブル構造の詳細
 - `supabase-schema.sql` - 実行用SQLファイル
 
+
+
+
+
+
+
+
+
+
+

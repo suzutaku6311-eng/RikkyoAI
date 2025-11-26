@@ -86,3 +86,13 @@ cat .env.local
 2. Supabaseの`chunks`テーブルにデータが保存されているか確認
 3. OpenAI APIキーが正しく設定されているか確認
 
+
+
+
+
+
+
+
+
+
+

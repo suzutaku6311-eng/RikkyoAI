@@ -8,10 +8,21 @@
 
 1. **Vercelダッシュボードにアクセス**
    - https://vercel.com/dashboard にアクセス
-   - プロジェクト「RikkyoAI」を選択
+   - プロジェクト「RikkyoAI」を選択（クリックして開く）
 
 2. **環境変数設定画面を開く**
-   - プロジェクト設定 → 「Environment Variables」をクリック
+   
+   方法1: Settingsタブから
+   - プロジェクトページの上部にあるタブメニューで「**Settings**」をクリック
+   - 左側のサイドバーメニュー（またはページ内）から「**Environment Variables**」を探してクリック
+   
+   方法2: 直接URLでアクセス
+   - プロジェクトを選択した状態で、以下のURLに直接アクセス：
+   - `https://vercel.com/[あなたのプロジェクト名]/settings/environment-variables`
+   
+   方法3: 検索で探す
+   - Settingsページ内で「Environment」や「Variables」で検索
+   - または、ページをスクロールして「Environment Variables」セクションを探す
 
 3. **以下の3つの環境変数を追加**
 

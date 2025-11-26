@@ -49,3 +49,13 @@ CREATE INDEX ON chunks USING ivfflat (embedding vector_cosine_ops);
 
 - インデックスの作成は、ある程度データが蓄積されてから行うことを推奨します（ivfflatインデックスは初期データ量に依存します）
 
+
+
+
+
+
+
+
+
+
+

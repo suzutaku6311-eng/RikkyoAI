@@ -4,8 +4,9 @@
 
 @layer base {
   body {
-    @apply bg-stone-50 text-stone-900 antialiased;
+    @apply bg-wood-pattern text-wood-darkest antialiased;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Yu Gothic', 'Meiryo', sans-serif;
+    background-size: 100% 100%, 20px 20px;
   }
 }
 
@@ -20,6 +21,80 @@
   
   .retro-shadow-sm {
     box-shadow: 2px 2px 0px 0px rgba(0, 0, 0, 0.1);
+  }
+
+  /* 木目調の背景パターン */
+  .bg-wood-pattern {
+    background: linear-gradient(90deg, #d4c4a8 0%, #c9a882 25%, #d4c4a8 50%, #c9a882 75%, #d4c4a8 100%);
+    background-size: 200% 100%;
+    position: relative;
+  }
+
+  .bg-wood-pattern::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: 
+      repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(139, 111, 71, 0.1) 2px,
+        rgba(139, 111, 71, 0.1) 4px
+      ),
+      repeating-linear-gradient(
+        90deg,
+        transparent,
+        transparent 2px,
+        rgba(139, 111, 71, 0.05) 2px,
+        rgba(139, 111, 71, 0.05) 4px
+      );
+    pointer-events: none;
+  }
+
+  /* グラデーション背景 */
+  .bg-gradient-radial {
+    background: radial-gradient(circle, var(--tw-gradient-stops));
+  }
+
+  /* react-pdf のスタイル */
+  .react-pdf__Page {
+    display: inline-block;
+  }
+
+  .react-pdf__Page__canvas {
+    display: block;
+    margin: 0 auto;
+  }
+
+  .react-pdf__Page__textContent {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    overflow: hidden;
+    opacity: 0.2;
+    line-height: 1;
+  }
+
+  .react-pdf__Page__textContent span {
+    color: transparent;
+    position: absolute;
+    white-space: pre;
+    cursor: text;
+    transform-origin: 0% 0%;
+  }
+
+  .react-pdf__Page__annotations {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
   }
 }
 
