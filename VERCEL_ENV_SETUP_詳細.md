@@ -75,7 +75,7 @@ https://vercel.com/RikkyoAI/settings/environment-variables
    #### ③ OPENAI_API_KEY
    ```
    Key: OPENAI_API_KEY
-   Value: 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
+   Value: YOUR_OPENAI_API_KEY_HERE
    Environment: ✅ Production ✅ Preview ✅ Development
    ```
    - 「Add」または「Save」をクリック

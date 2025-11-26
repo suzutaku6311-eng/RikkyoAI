@@ -24,7 +24,7 @@ echo "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ6a
 # OPENAI_API_KEY
 echo ""
 echo "OPENAI_API_KEY を追加中..."
-echo "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" | vercel env add OPENAI_API_KEY production preview development
+echo "YOUR_OPENAI_API_KEY_HERE" | vercel env add OPENAI_API_KEY production preview development
 
 echo ""
 echo "3. 設定された環境変数を確認中..."

@@ -32,7 +32,7 @@ OPENAI_API_KEY
 
 値:
 ```
-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
+YOUR_OPENAI_API_KEY_HERE
 ```
 
 ## 設定時の注意事項

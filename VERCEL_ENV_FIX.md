@@ -42,7 +42,7 @@
 ### ステップ4: 3つ目を追加
 1. 「+ Add Another」ボタンをクリック
 2. **Key**: `OPENAI_API_KEY`
-3. **Value**: `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`
+3. **Value**: `YOUR_OPENAI_API_KEY_HERE`
 4. **Environment**: Production, Preview, Development の**3つすべて**にチェック
 5. 「Save」をクリック
 

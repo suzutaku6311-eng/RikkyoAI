@@ -62,7 +62,7 @@
    ```
 3. **Value**欄に以下を入力（長い文字列なので注意）:
    ```
-   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
+   YOUR_OPENAI_API_KEY_HERE
    ```
 4. **Environment**で以下をすべてチェック:
    - ☑ Production
