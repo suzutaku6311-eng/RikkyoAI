@@ -54,7 +54,7 @@
 ```env
 NEXT_PUBLIC_SUPABASE_URL=https://fzhrybiuspoxovctdogb.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ6aHR5Yml1c3BveG92Y3Rkb2diIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQwMDUwODksImV4cCI6MjA3OTU4MTA4OX0.JKWOz2xG3aokS1qMPrU1LlFFFLGamX8rHq_Xft9ForA
-OPENAI_API_KEY=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
+OPENAI_API_KEY=YOUR_OPENAI_API_KEY_HERE
 ```
 
 3. 各環境変数の右側で、**Environment**を選択（Production, Preview, Development すべて）
@@ -85,7 +85,7 @@ vercel env add NEXT_PUBLIC_SUPABASE_ANON_KEY production preview development
 # → 値の入力が求められたら: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ6aHR5Yml1c3BveG92Y3Rkb2diIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQwMDUwODksImV4cCI6MjA3OTU4MTA4OX0.JKWOz2xG3aokS1qMPrU1LlFFFLGamX8rHq_Xft9ForA
 
 vercel env add OPENAI_API_KEY production preview development
-# → 値の入力が求められたら: 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
+# → 値の入力が求められたら: YOUR_OPENAI_API_KEY_HERE
 
 # 確認
 vercel env ls

@@ -63,7 +63,7 @@ vercel env add OPENAI_API_KEY production preview development
 
 値の入力が求められたら、以下を貼り付け:
 ```
-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
+YOUR_OPENAI_API_KEY_HERE
 ```
 
 ## ステップ5: 確認

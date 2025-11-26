@@ -23,7 +23,7 @@ vercel env add NEXT_PUBLIC_SUPABASE_ANON_KEY
 
 # ③ OPENAI_API_KEY
 vercel env add OPENAI_API_KEY
-# → 値の入力が求められたら: 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
+# → 値の入力が求められたら: YOUR_OPENAI_API_KEY_HERE
 # → 環境の選択が求められたら: Production, Preview, Development のすべてを選択
 ```
 
@@ -43,9 +43,9 @@ echo "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ6a
 echo "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ6aHR5Yml1c3BveG92Y3Rkb2diIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQwMDUwODksImV4cCI6MjA3OTU4MTA4OX0.JKWOz2xG3aokS1qMPrU1LlFFFLGamX8rHq_Xft9ForA" | vercel env add NEXT_PUBLIC_SUPABASE_ANON_KEY development
 
 # OPENAI_API_KEY
-echo "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" | vercel env add OPENAI_API_KEY production
-echo "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" | vercel env add OPENAI_API_KEY preview
-echo "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" | vercel env add OPENAI_API_KEY development
+echo "YOUR_OPENAI_API_KEY_HERE" | vercel env add OPENAI_API_KEY production
+echo "YOUR_OPENAI_API_KEY_HERE" | vercel env add OPENAI_API_KEY preview
+echo "YOUR_OPENAI_API_KEY_HERE" | vercel env add OPENAI_API_KEY development
 ```
 
 ## 確認
