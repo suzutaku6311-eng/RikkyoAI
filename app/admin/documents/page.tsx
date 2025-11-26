@@ -2,12 +2,6 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import dynamic from 'next/dynamic'
-
-// PDFViewerを動的インポート（SSRを無効化）
-const PDFViewer = dynamic(() => import('@/components/PDFViewer'), {
-  ssr: false,
-})
 
 type Document = {
   id: string
@@ -24,7 +18,6 @@ export default function DocumentsPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
-  const [viewingPdf, setViewingPdf] = useState<{ id: string; fileName: string } | null>(null)
 
   useEffect(() => {
     fetchDocuments()
@@ -137,7 +130,9 @@ export default function DocumentsPage() {
 
   const handleViewPdf = (doc: Document) => {
     if (doc.file_type === 'pdf') {
-      setViewingPdf({ id: doc.id, fileName: doc.file_name })
+      // 新しいタブでPDFを開く（ブラウザの標準PDFビューアーを使用）
+      const pdfUrl = `/api/admin/documents/${doc.id}/view`
+      window.open(pdfUrl, '_blank')
     }
   }
 
@@ -281,12 +276,23 @@ export default function DocumentsPage() {
                       <td className="px-6 py-4 whitespace-nowrap text-right">
                         <div className="flex items-center justify-end gap-2">
                           {doc.file_type === 'pdf' && (
-                            <button
-                              onClick={() => handleViewPdf(doc)}
-                              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg shadow-md transition-all transform hover:scale-105"
-                            >
-                              👁️ 閲覧
-                            </button>
+                            <>
+                              <button
+                                onClick={() => handleViewPdf(doc)}
+                                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg shadow-md transition-all transform hover:scale-105"
+                                title="新しいタブでPDFを開く"
+                              >
+                                📄 開く
+                              </button>
+                              <a
+                                href={`/api/admin/documents/${doc.id}/view`}
+                                download={doc.file_name}
+                                className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-bold rounded-lg shadow-md transition-all transform hover:scale-105 inline-block"
+                                title="PDFをダウンロード"
+                              >
+                                ⬇️ ダウンロード
+                              </a>
+                            </>
                           )}
                           <button
                             onClick={() => handleDelete(doc.id)}
@@ -309,15 +315,6 @@ export default function DocumentsPage() {
           合計: <span className="text-2xl text-wood-darker">{documents.length}</span> 件の文書
         </div>
       </div>
-
-      {/* PDF Viewer Modal */}
-      {viewingPdf && (
-        <PDFViewer
-          documentId={viewingPdf.id}
-          fileName={viewingPdf.fileName}
-          onClose={() => setViewingPdf(null)}
-        />
-      )}
     </div>
   )
 }
