@@ -129,14 +129,26 @@ export async function POST(request: NextRequest) {
     // Embedding生成（一括処理）
     console.log(`[Ingest] Embedding生成開始: ${chunks.length}個のチャンク`)
     const embeddingStartTime = Date.now()
-    const embeddings = await generateEmbeddingsForChunks(chunks)
-    const embeddingTime = Date.now() - embeddingStartTime
-    console.log(`[Ingest] Embedding生成完了: ${embeddingTime}ms`)
+    
+    let embeddings: number[][]
+    try {
+      embeddings = await generateEmbeddingsForChunks(chunks)
+      const embeddingTime = Date.now() - embeddingStartTime
+      console.log(`[Ingest] Embedding生成完了: ${embeddingTime}ms`)
+    } catch (error: any) {
+      const embeddingTime = Date.now() - embeddingStartTime
+      console.error(`[Ingest] Embedding生成エラー (${embeddingTime}ms):`, error)
+      const errorMessage = error?.message || 'Embedding生成に失敗しました'
+      return NextResponse.json(
+        { success: false, error: errorMessage },
+        { status: 500 }
+      )
+    }
 
     if (embeddings.length !== chunks.length) {
       console.error(`[Ingest] Embedding生成に失敗: ${embeddings.length}個 / ${chunks.length}個`)
       return NextResponse.json(
-        { success: false, error: 'Embedding生成に失敗しました' },
+        { success: false, error: `Embedding生成に失敗しました: ${embeddings.length}個 / ${chunks.length}個` },
         { status: 500 }
       )
     }

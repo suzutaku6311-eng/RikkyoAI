@@ -86,15 +86,35 @@ export async function generateEmbeddingsForChunks(chunks: string[]): Promise<num
   }
   
   try {
+    console.log(`[Embeddings] OpenAI API呼び出し開始: ${chunks.length}個のチャンク`)
     const response = await openai.embeddings.create({
       model: 'text-embedding-3-large',
       input: chunks,
     })
     
+    console.log(`[Embeddings] OpenAI API呼び出し成功: ${response.data.length}個のEmbeddingを取得`)
+    
+    if (response.data.length !== chunks.length) {
+      console.error(`[Embeddings] Embedding数が一致しません: ${response.data.length}個 / ${chunks.length}個`)
+      throw new Error(`Embedding数が一致しません: ${response.data.length}個 / ${chunks.length}個`)
+    }
+    
     return response.data.map(item => item.embedding)
-  } catch (error) {
-    console.error('一括Embedding生成エラー:', error)
-    throw new Error('Embedding生成に失敗しました')
+  } catch (error: any) {
+    console.error('[Embeddings] 一括Embedding生成エラー:', error)
+    
+    // エラーの詳細をログに記録
+    if (error?.response) {
+      console.error('[Embeddings] OpenAI APIレスポンスエラー:', error.response.status, error.response.data)
+    }
+    if (error?.message) {
+      console.error('[Embeddings] エラーメッセージ:', error.message)
+    }
+    
+    // より詳細なエラーメッセージを返す
+    const errorMessage = error?.message || 'Embedding生成に失敗しました'
+    const statusCode = error?.response?.status || 'unknown'
+    throw new Error(`Embedding生成に失敗しました: ${errorMessage} (Status: ${statusCode})`)
   }
 }
 
