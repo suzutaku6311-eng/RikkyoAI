@@ -131,9 +131,19 @@ export async function generateEmbeddingsForChunks(chunks: string[]): Promise<num
           console.error(`[Embeddings] バッチ ${batchNumber} エラーメッセージ:`, batchError.message)
         }
         
+        // 401エラー（APIキー無効）の場合の特別な処理
+        if (batchError?.status === 401 || batchError?.code === 'invalid_api_key') {
+          throw new Error('OpenAI APIキーが無効です。Vercelの環境変数でOPENAI_API_KEYを確認してください。')
+        }
+        
+        // 429エラー（レート制限）の場合の特別な処理
+        if (batchError?.status === 429) {
+          throw new Error('OpenAI APIのレート制限に達しました。しばらく待ってから再度お試しください。')
+        }
+        
         // より詳細なエラーメッセージを返す
         const errorMessage = batchError?.message || 'Embedding生成に失敗しました'
-        const statusCode = batchError?.response?.status || 'unknown'
+        const statusCode = batchError?.status || batchError?.response?.status || 'unknown'
         const statusText = batchError?.response?.statusText || ''
         const errorData = batchError?.response?.data ? JSON.stringify(batchError.response.data) : ''
         
