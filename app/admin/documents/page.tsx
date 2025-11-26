@@ -156,7 +156,6 @@ export default function DocumentsPage() {
       </div>
 
       <div className="relative z-10 max-w-7xl mx-auto">
-      <div className="max-w-6xl mx-auto">
         <div className="flex justify-between items-center mb-12 animate-fadeIn">
           <div className="relative">
             <div className="absolute -left-4 top-0 bottom-0 w-1 bg-wood-dark animate-grow"></div>
