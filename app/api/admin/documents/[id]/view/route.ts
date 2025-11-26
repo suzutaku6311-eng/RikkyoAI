@@ -41,22 +41,39 @@ export async function GET(
       .single()
 
     if (docError || !document) {
+      console.error('[PDF View API] 文書取得エラー:', docError)
       return NextResponse.json(
         { error: 'Document not found' },
         { status: 404 }
       )
     }
 
-    // file_pathが存在しない場合は古い文書の可能性がある
-    if (!document.file_path) {
-      // 古い形式のパスを試す
-      const oldPath = `documents/${documentId}/${document.file_name}`
-      const { data: oldFile, error: oldError } = await supabaseClient.storage
-        .from('documents')
-        .download(oldPath)
+    console.log('[PDF View API] 文書情報:', { file_path: document.file_path, file_name: document.file_name })
 
-      if (!oldError && oldFile) {
-        const arrayBuffer = await oldFile.arrayBuffer()
+    // 試すパスのリスト（file_pathがある場合とない場合の両方）
+    const pathsToTry = []
+    
+    if (document.file_path) {
+      pathsToTry.push(document.file_path)
+    }
+    
+    // 古い形式のパスも試す
+    pathsToTry.push(`documents/${documentId}/${document.file_name}`)
+    
+    // ファイル名のみも試す（念のため）
+    pathsToTry.push(document.file_name)
+
+    // 各パスを順番に試す
+    for (const path of pathsToTry) {
+      console.log(`[PDF View API] パスを試行中: ${path}`)
+      
+      const { data: fileData, error: storageError } = await supabaseClient.storage
+        .from('documents')
+        .download(path)
+
+      if (!storageError && fileData) {
+        console.log(`[PDF View API] ファイル取得成功: ${path}`)
+        const arrayBuffer = await fileData.arrayBuffer()
         return new NextResponse(arrayBuffer, {
           headers: {
             'Content-Type': 'application/pdf',
@@ -64,25 +81,22 @@ export async function GET(
             'Cache-Control': 'public, max-age=3600',
           },
         })
+      } else {
+        console.log(`[PDF View API] パス ${path} でエラー:`, storageError?.message)
       }
-
-      return NextResponse.json(
-        { error: 'PDF file not found in storage' },
-        { status: 404 }
-      )
     }
 
-    // StorageからPDFファイルを取得
-    const { data: fileData, error: storageError } = await supabaseClient.storage
-      .from('documents')
-      .download(document.file_path)
-
-    if (storageError || !fileData) {
-      return NextResponse.json(
-        { error: 'Failed to retrieve PDF file' },
-        { status: 500 }
-      )
-    }
+    // すべてのパスで失敗した場合
+    console.error('[PDF View API] すべてのパスでファイルが見つかりませんでした')
+    return NextResponse.json(
+      { 
+        error: 'PDF file not found in storage',
+        details: `Tried paths: ${pathsToTry.join(', ')}`,
+        documentId: documentId,
+        fileName: document.file_name
+      },
+      { status: 404 }
+    )
 
     const arrayBuffer = await fileData.arrayBuffer()
 
