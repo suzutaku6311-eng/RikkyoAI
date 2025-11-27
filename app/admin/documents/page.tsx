@@ -286,6 +286,21 @@ export default function DocumentsPage() {
                             </a>
                           )}
                           <button
+                            onClick={() => handleRegenerate(doc.id)}
+                            disabled={regenerating === doc.id}
+                            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-bold rounded-lg shadow-md transition-all transform hover:scale-105 disabled:transform-none"
+                            title="Embeddingを再生成"
+                          >
+                            {regenerating === doc.id ? (
+                              <span className="flex items-center gap-2">
+                                <span className="inline-block animate-pulse-gentle">🔄</span>
+                                再生成中...
+                              </span>
+                            ) : (
+                              '🔄 再生成'
+                            )}
+                          </button>
+                          <button
                             onClick={() => handleDelete(doc.id)}
                             className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-bold rounded-lg shadow-md transition-all transform hover:scale-105"
                           >
