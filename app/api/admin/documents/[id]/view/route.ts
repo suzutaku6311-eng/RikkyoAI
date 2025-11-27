@@ -97,16 +97,6 @@ export async function GET(
       },
       { status: 404 }
     )
-
-    const arrayBuffer = await fileData.arrayBuffer()
-
-    return new NextResponse(arrayBuffer, {
-      headers: {
-        'Content-Type': 'application/pdf',
-        'Content-Disposition': `inline; filename="${document.file_name}"`,
-        'Cache-Control': 'public, max-age=3600',
-      },
-    })
   } catch (error) {
     console.error('[PDF View API] Error:', error)
     return NextResponse.json(
