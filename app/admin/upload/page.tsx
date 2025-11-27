@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useLanguage } from '@/contexts/LanguageContext'
 
 export default function UploadPage() {
-  const { t } = useLanguage()
+  const { t, language } = useLanguage()
   const [file, setFile] = useState<File | null>(null)
   const [title, setTitle] = useState('')
   const [loading, setLoading] = useState(false)
@@ -53,7 +53,7 @@ export default function UploadPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!file) {
-      setMessage({ type: 'error', text: 'ファイルを選択してください' })
+      setMessage({ type: 'error', text: language === 'ja' ? 'ファイルを選択してください' : 'Please select a file' })
       return
     }
 
