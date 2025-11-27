@@ -82,6 +82,10 @@ export async function GET(
           contentType = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
         } else if (fileName.endsWith('.txt')) {
           contentType = 'text/plain; charset=utf-8'
+        } else if (fileName.endsWith('.xlsx')) {
+          contentType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        } else if (fileName.endsWith('.xls')) {
+          contentType = 'application/vnd.ms-excel'
         }
         
         return new NextResponse(arrayBuffer, {

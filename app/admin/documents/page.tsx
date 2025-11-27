@@ -292,7 +292,11 @@ export default function DocumentsPage() {
                       <td className="px-6 py-4 whitespace-nowrap border-r-2 border-wood-dark">
                         <div className="text-sm font-bold text-wood-darkest flex items-center gap-2">
                           <span className="text-lg">
-                            {doc.file_type === 'pdf' ? '📄' : doc.file_type === 'docx' ? '📝' : doc.file_type === 'txt' ? '📃' : '📄'}
+                            {doc.file_type === 'pdf' ? '📄' : 
+                             doc.file_type === 'docx' ? '📝' : 
+                             doc.file_type === 'txt' ? '📃' : 
+                             doc.file_type === 'xlsx' || doc.file_type === 'xls' ? '📊' : 
+                             '📄'}
                           </span>
                           {doc.title}
                         </div>
@@ -317,7 +321,7 @@ export default function DocumentsPage() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right">
                         <div className="flex items-center justify-end gap-2">
-                          {(doc.file_type === 'pdf' || doc.file_type === 'docx' || doc.file_type === 'txt') && (
+                          {(doc.file_type === 'pdf' || doc.file_type === 'docx' || doc.file_type === 'txt' || doc.file_type === 'xlsx' || doc.file_type === 'xls') && (
                             <a
                               href={`/api/admin/documents/${doc.id}/view`}
                               download={doc.file_name}

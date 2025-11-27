@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import pdfParse from 'pdf-parse'
 import mammoth from 'mammoth'
+import * as XLSX from 'xlsx'
 import { supabase, checkSupabaseEnv } from '@/lib/supabase'
 import { checkOpenAIEnv } from '@/lib/openai'
 import { splitIntoChunks, generateEmbeddingsForChunks } from '@/lib/embeddings'
@@ -74,7 +75,7 @@ export async function POST(request: NextRequest) {
     // ファイルタイプの判定
     const fileName = file.name.toLowerCase()
     const fileType = file.type
-    let fileTypeDetected: 'pdf' | 'docx' | 'txt' | null = null
+    let fileTypeDetected: 'pdf' | 'docx' | 'txt' | 'xlsx' | 'xls' | null = null
     
     if (fileName.endsWith('.pdf') || fileType === 'application/pdf') {
       fileTypeDetected = 'pdf'
@@ -82,12 +83,16 @@ export async function POST(request: NextRequest) {
       fileTypeDetected = 'docx'
     } else if (fileName.endsWith('.txt') || fileType === 'text/plain') {
       fileTypeDetected = 'txt'
+    } else if (fileName.endsWith('.xlsx') || fileType === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
+      fileTypeDetected = 'xlsx'
+    } else if (fileName.endsWith('.xls') || fileType === 'application/vnd.ms-excel') {
+      fileTypeDetected = 'xls'
     }
     
     if (!fileTypeDetected) {
       console.error('[Ingest] サポートされていないファイル形式です')
       return NextResponse.json(
-        { success: false, error: 'PDF、DOCX、TXTファイルのみ対応しています' },
+        { success: false, error: 'PDF、DOCX、TXT、Excel（XLSX/XLS）ファイルのみ対応しています' },
         { status: 400 }
       )
     }
@@ -131,6 +136,56 @@ export async function POST(request: NextRequest) {
         .replace(/\r/g, '\n')
         .replace(/\s+/g, ' ')
         .trim()
+    } else if (fileTypeDetected === 'xlsx' || fileTypeDetected === 'xls') {
+      console.log(`[Ingest] Excel (${fileTypeDetected.toUpperCase()})からテキスト抽出中...`)
+      
+      // Excelファイルを読み込む
+      const workbook = XLSX.read(buffer, { type: 'buffer' })
+      
+      // すべてのシートからテキストを抽出
+      const sheetTexts: string[] = []
+      
+      workbook.SheetNames.forEach((sheetName, index) => {
+        const worksheet = workbook.Sheets[sheetName]
+        
+        // シートをJSON形式に変換（すべてのセルを取得）
+        const sheetData = XLSX.utils.sheet_to_json(worksheet, { 
+          header: 1, // 配列形式で取得
+          defval: '', // 空のセルは空文字列として扱う
+          raw: false // 数値も文字列として取得
+        }) as any[][]
+        
+        // シート名を追加
+        sheetTexts.push(`[シート: ${sheetName}]`)
+        
+        // 各行を処理
+        sheetData.forEach((row, rowIndex) => {
+          if (row && row.length > 0) {
+            // 行の各セルの値を結合（空でない値のみ）
+            const rowValues = row
+              .filter(cell => cell !== null && cell !== undefined && String(cell).trim() !== '')
+              .map(cell => String(cell).trim())
+            
+            if (rowValues.length > 0) {
+              sheetTexts.push(rowValues.join(' | '))
+            }
+          }
+        })
+        
+        // シート間に空行を追加
+        if (index < workbook.SheetNames.length - 1) {
+          sheetTexts.push('')
+        }
+      })
+      
+      extractedText = sheetTexts.join('\n')
+      
+      // テキストの正規化
+      extractedText = extractedText
+        .replace(/\s+/g, ' ')
+        .trim()
+      
+      console.log(`[Ingest] Excelから ${workbook.SheetNames.length}個のシートを処理しました`)
     }
     
     console.log(`[Ingest] テキスト抽出完了: ${extractedText.length}文字`)
@@ -186,13 +241,13 @@ export async function POST(request: NextRequest) {
 
     // 文書情報をSupabaseに保存
     console.log('[Ingest] 文書情報をSupabaseに保存中...')
-    const documentTitle = title || file.name.replace(/\.(pdf|docx|txt)$/i, '')
+    const documentTitle = title || file.name.replace(/\.(pdf|docx|txt|xlsx|xls)$/i, '')
     const { data: documentData, error: documentError } = await supabaseClient
       .from('documents')
       .insert({
         title: documentTitle,
         file_name: file.name,
-        file_type: fileTypeDetected,
+        file_type: fileTypeDetected === 'xls' ? 'xlsx' : fileTypeDetected // xlsもxlsxとして保存,
         uploaded_at: new Date().toISOString(),
       })
       .select()
@@ -219,6 +274,8 @@ export async function POST(request: NextRequest) {
       contentType = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
     } else if (fileTypeDetected === 'txt') {
       contentType = 'text/plain'
+    } else if (fileTypeDetected === 'xlsx' || fileTypeDetected === 'xls') {
+      contentType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
     }
     
     const { error: storageError } = await supabaseClient.storage

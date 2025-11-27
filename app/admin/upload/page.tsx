@@ -19,9 +19,11 @@ export default function UploadPage() {
     const isPdf = fileName.endsWith('.pdf') || fileType === 'application/pdf'
     const isDocx = fileName.endsWith('.docx') || fileType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
     const isTxt = fileName.endsWith('.txt') || fileType === 'text/plain'
+    const isXlsx = fileName.endsWith('.xlsx') || fileType === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    const isXls = fileName.endsWith('.xls') || fileType === 'application/vnd.ms-excel'
     
-    if (!isPdf && !isDocx && !isTxt) {
-      setMessage({ type: 'error', text: 'PDF、DOCX、TXTファイルのみ対応しています' })
+    if (!isPdf && !isDocx && !isTxt && !isXlsx && !isXls) {
+      setMessage({ type: 'error', text: 'PDF、DOCX、TXT、Excel（XLSX/XLS）ファイルのみ対応しています' })
       return
     }
 
@@ -37,7 +39,7 @@ export default function UploadPage() {
 
       setFile(selectedFile)
       if (!title) {
-        setTitle(selectedFile.name.replace(/\.(pdf|docx|txt)$/i, ''))
+        setTitle(selectedFile.name.replace(/\.(pdf|docx|txt|xlsx|xls)$/i, ''))
       }
       setMessage(null)
     }
@@ -163,13 +165,13 @@ export default function UploadPage() {
               htmlFor="file-input"
               className="block text-sm font-bold text-wood-darkest mb-3 border-b-4 border-wood-dark pb-2"
             >
-              📄 文書ファイル（PDF / DOCX / TXT）
+              📄 文書ファイル（PDF / DOCX / TXT / Excel）
             </label>
             <div className="border-4 border-wood-dark bg-white/50 p-4 rounded-lg shadow-wood-sm">
               <input
                 id="file-input"
                 type="file"
-                accept=".pdf,.docx,.txt,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain"
+                accept=".pdf,.docx,.txt,.xlsx,.xls,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel"
                 onChange={handleFileChange}
                 className="block w-full text-sm text-wood-darkest file:mr-4 file:py-2 file:px-4 file:border-4 file:border-wood-dark file:bg-wood-light file:text-wood-darkest file:font-bold file:cursor-pointer hover:file:bg-wood-lightest file:shadow-wood-sm file:rounded-lg transition-all"
                 disabled={loading}
