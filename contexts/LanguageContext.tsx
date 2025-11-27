@@ -78,6 +78,8 @@ const translations = {
     'upload.instructions.step2': '文書タイトルを入力（オプション）',
     'upload.instructions.step3': '「アップロード」ボタンをクリック',
     'upload.instructions.step4': '処理が完了すると、自動的にチャンク分割とEmbedding生成が行われます',
+    'upload.file.selected': '選択中',
+    'upload.file.notSelected': 'ファイルが選択されていません',
     
     // 文書一覧ページ
     'documents.title': '📚 文書一覧',
