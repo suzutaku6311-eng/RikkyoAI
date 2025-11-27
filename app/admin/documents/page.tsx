@@ -18,6 +18,7 @@ export default function DocumentsPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
+  const [regenerating, setRegenerating] = useState<string | null>(null)
 
   useEffect(() => {
     fetchDocuments()
