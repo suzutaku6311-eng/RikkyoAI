@@ -123,36 +123,53 @@ export default function UploadPage() {
   }
 
   return (
-    <div className="min-h-screen p-8 bg-stone-50">
-      <div className="max-w-3xl mx-auto">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-2 text-stone-900 tracking-tight border-b-4 border-stone-800 pb-3 inline-block">
-            文書アップロード
-          </h1>
-          <p className="text-stone-600 text-sm font-mono mt-2">
-            Upload PDF → Process → Index
-          </p>
+    <div className="min-h-screen p-8 bg-wood-pattern relative overflow-hidden">
+      {/* 背景装飾 */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden">
+        <div 
+          className="absolute top-0 left-0 w-full h-full animate-pulse-slow"
+          style={{
+            background: 'radial-gradient(circle, rgba(212, 196, 168, 0.2) 0%, transparent 50%, transparent 100%)'
+          }}
+        ></div>
+        <div className="absolute top-1/4 right-0 w-96 h-96 bg-wood-dark/10 rounded-full blur-3xl animate-float"></div>
+        <div className="absolute bottom-1/4 left-0 w-96 h-96 bg-wood-darker/10 rounded-full blur-3xl animate-float-delayed"></div>
+      </div>
+
+      <div className="relative z-10 max-w-4xl mx-auto">
+        <div className="mb-10 animate-fadeIn">
+          <div className="relative">
+            <div className="absolute -left-4 top-0 bottom-0 w-1 bg-wood-dark animate-grow"></div>
+            <h1 className="text-5xl font-bold mb-3 text-wood-dark tracking-tight relative">
+              <span className="relative z-10 bg-wood-pattern px-4 py-2 rounded-lg border-4 border-wood-dark shadow-wood-lg inline-block transform hover:scale-105 transition-transform">
+                📤 文書アップロード
+              </span>
+            </h1>
+            <p className="text-wood-darker text-sm font-mono mt-3 ml-4 tracking-wider">
+              Upload PDF → Process → Index
+            </p>
+          </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="bg-stone-100 p-8 border-2 border-stone-800 retro-shadow-sm">
+        <form onSubmit={handleSubmit} className="bg-wood-light p-8 border-4 border-wood-dark shadow-wood-md rounded-lg animate-fadeIn">
           <div className="mb-6">
             <label
               htmlFor="file-input"
-              className="block text-sm font-bold text-stone-900 mb-3 border-b border-stone-800 pb-1"
+              className="block text-sm font-bold text-wood-darkest mb-3 border-b-4 border-wood-dark pb-2"
             >
-              PDFファイル
+              📄 PDFファイル
             </label>
-            <div className="border-2 border-stone-800 bg-stone-50 p-4 retro-shadow-sm">
+            <div className="border-4 border-wood-dark bg-white/50 p-4 rounded-lg shadow-wood-sm">
               <input
                 id="file-input"
                 type="file"
                 accept=".pdf,application/pdf"
                 onChange={handleFileChange}
-                className="block w-full text-sm text-stone-700 file:mr-4 file:py-2 file:px-4 file:border-2 file:border-stone-800 file:bg-stone-200 file:text-stone-900 file:font-bold file:cursor-pointer hover:file:bg-stone-300 file:retro-shadow-sm"
+                className="block w-full text-sm text-wood-darkest file:mr-4 file:py-2 file:px-4 file:border-4 file:border-wood-dark file:bg-wood-light file:text-wood-darkest file:font-bold file:cursor-pointer hover:file:bg-wood-lightest file:shadow-wood-sm file:rounded-lg transition-all"
                 disabled={loading}
               />
               {file && (
-                <p className="mt-3 text-sm text-stone-700 font-mono bg-stone-200 px-3 py-2 border border-stone-800">
+                <p className="mt-3 text-sm text-wood-darkest font-mono bg-wood-light px-4 py-2 border-2 border-wood-dark rounded-lg shadow-wood-sm">
                   選択中: {file.name} ({(file.size / 1024 / 1024).toFixed(2)} MB)
                 </p>
               )}
@@ -162,9 +179,9 @@ export default function UploadPage() {
           <div className="mb-6">
             <label
               htmlFor="title-input"
-              className="block text-sm font-bold text-stone-900 mb-3 border-b border-stone-800 pb-1"
+              className="block text-sm font-bold text-wood-darkest mb-3 border-b-4 border-wood-dark pb-2"
             >
-              文書タイトル（オプション）
+              📝 文書タイトル（オプション）
             </label>
             <input
               id="title-input"
@@ -172,47 +189,59 @@ export default function UploadPage() {
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="ファイル名から自動設定されます"
-              className="w-full px-5 py-3 border-2 border-stone-800 bg-stone-50 text-stone-900 placeholder-stone-500 focus:outline-none focus:bg-white focus:border-stone-900 font-medium retro-shadow-sm"
+              className="w-full px-6 py-4 border-4 border-wood-dark bg-wood-light text-wood-darkest placeholder-wood-darker focus:outline-none focus:bg-white focus:border-wood-darker font-medium shadow-wood-sm rounded-lg text-lg"
               disabled={loading}
             />
           </div>
 
           {message && (
             <div
-              className={`mb-6 p-5 border-2 retro-shadow-sm ${
+              className={`mb-6 p-6 border-4 shadow-wood-md rounded-lg animate-slideDown ${
                 message.type === 'success'
-                  ? 'bg-green-50 border-green-800 text-green-900'
-                  : 'bg-red-50 border-red-800 text-red-900'
+                  ? 'bg-green-100 border-green-700 text-green-900'
+                  : 'bg-red-100 border-red-700 text-red-900'
               }`}
             >
-              <div className="font-bold mb-1">{message.type === 'success' ? '成功' : 'エラー'}</div>
-              <div className="text-sm">{message.text}</div>
+              <div className="font-bold mb-2 text-lg flex items-center gap-2">
+                {message.type === 'success' ? '✅ 成功' : '❌ エラー'}
+              </div>
+              <div className="text-sm font-medium">{message.text}</div>
             </div>
           )}
 
-          <div className="flex gap-3">
+          <div className="flex gap-4">
             <button
               type="submit"
               disabled={loading || !file}
-              className="flex-1 px-6 py-4 bg-stone-900 text-stone-50 border-2 border-stone-800 font-bold hover:bg-stone-800 disabled:bg-stone-400 disabled:border-stone-400 disabled:cursor-not-allowed retro-shadow-sm transition-all"
+              className="flex-1 px-8 py-5 bg-wood-dark text-wood-light border-4 border-wood-darker font-bold hover:bg-wood-darker disabled:bg-wood-darkest disabled:border-wood-darkest disabled:cursor-not-allowed shadow-wood-md transition-all transform hover:scale-105 disabled:transform-none rounded-lg text-lg"
             >
-              {loading ? 'アップロード中...' : 'アップロード'}
+              {loading ? (
+                <span className="flex items-center gap-2 justify-center">
+                  <span className="inline-block animate-spin-slow">📤</span>
+                  アップロード中...
+                </span>
+              ) : (
+                '📤 アップロード'
+              )}
             </button>
             <button
               type="button"
               onClick={() => router.push('/ask')}
-              className="px-6 py-4 bg-stone-200 text-stone-900 border-2 border-stone-800 font-bold hover:bg-stone-300 retro-shadow-sm transition-all"
+              className="px-8 py-5 bg-wood-light text-wood-darkest border-4 border-wood-dark font-bold hover:bg-wood-lightest shadow-wood-md transition-all transform hover:scale-105 rounded-lg text-lg"
             >
-              質問画面へ
+              🔍 質問画面へ
             </button>
           </div>
         </form>
 
-        <div className="mt-8 bg-stone-200 p-6 border-2 border-stone-800 retro-shadow-sm">
-          <h2 className="text-lg font-bold mb-3 text-stone-900 border-b-2 border-stone-800 pb-2 inline-block">
-            アップロード手順
-          </h2>
-          <ol className="list-decimal list-inside space-y-2 text-sm text-stone-800 leading-relaxed">
+        <div className="mt-10 bg-wood-light p-8 border-4 border-wood-dark shadow-wood-md rounded-lg animate-fadeIn">
+          <div className="bg-wood-dark text-wood-light px-6 py-4 border-b-4 border-wood-darker rounded-t-lg shadow-wood-md -m-8 mb-4">
+            <h2 className="text-xl font-bold flex items-center gap-2">
+              <span>📋</span>
+              アップロード手順
+            </h2>
+          </div>
+          <ol className="list-decimal list-inside space-y-3 text-sm text-wood-darkest leading-relaxed ml-4">
             <li>PDFファイルを選択してください</li>
             <li>文書タイトルを入力（オプション）</li>
             <li>「アップロード」ボタンをクリック</li>
