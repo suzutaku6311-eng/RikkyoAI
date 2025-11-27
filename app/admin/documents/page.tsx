@@ -249,12 +249,19 @@ export default function DocumentsPage() {
                     >
                       <td className="px-6 py-4 whitespace-nowrap border-r-2 border-wood-dark">
                         <div className="text-sm font-bold text-wood-darkest flex items-center gap-2">
-                          <span className="text-lg">📄</span>
+                          <span className="text-lg">
+                            {doc.file_type === 'pdf' ? '📄' : doc.file_type === 'docx' ? '📝' : doc.file_type === 'txt' ? '📃' : '📄'}
+                          </span>
                           {doc.title}
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap border-r-2 border-wood-dark">
-                        <div className="text-sm text-wood-darker font-mono">{doc.file_name}</div>
+                        <div className="text-sm text-wood-darker font-mono flex items-center gap-2">
+                          <span className="text-xs bg-wood-dark text-wood-light px-2 py-1 rounded font-bold">
+                            {doc.file_type?.toUpperCase() || 'PDF'}
+                          </span>
+                          {doc.file_name}
+                        </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap border-r-2 border-wood-dark">
                         <div className="text-sm text-wood-darker font-mono font-bold">
@@ -268,12 +275,12 @@ export default function DocumentsPage() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right">
                         <div className="flex items-center justify-end gap-2">
-                          {doc.file_type === 'pdf' && (
+                          {(doc.file_type === 'pdf' || doc.file_type === 'docx' || doc.file_type === 'txt') && (
                             <a
                               href={`/api/admin/documents/${doc.id}/view`}
                               download={doc.file_name}
                               className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-bold rounded-lg shadow-md transition-all transform hover:scale-105 inline-block"
-                              title="PDFをダウンロード"
+                              title={`${doc.file_type.toUpperCase()}をダウンロード`}
                             >
                               ⬇️ ダウンロード
                             </a>

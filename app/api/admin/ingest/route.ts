@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import pdfParse from 'pdf-parse'
+import mammoth from 'mammoth'
 import { supabase, checkSupabaseEnv } from '@/lib/supabase'
 import { checkOpenAIEnv } from '@/lib/openai'
 import { splitIntoChunks, generateEmbeddingsForChunks } from '@/lib/embeddings'
@@ -11,8 +12,8 @@ export const runtime = 'nodejs'
 export const maxDuration = 60
 
 /**
- * PDFファイルのingest処理
- * 1. PDFからテキスト抽出
+ * 文書ファイル（PDF/DOCX/TXT）のingest処理
+ * 1. ファイルからテキスト抽出
  * 2. チャンク分割（300-500文字）
  * 3. Embedding生成
  * 4. Supabaseに保存
@@ -70,37 +71,67 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // ファイルタイプの検証（PDFのみ対応）
-    if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
-      console.error('[Ingest] PDFファイルではありません')
+    // ファイルタイプの判定
+    const fileName = file.name.toLowerCase()
+    const fileType = file.type
+    let fileTypeDetected: 'pdf' | 'docx' | 'txt' | null = null
+    
+    if (fileName.endsWith('.pdf') || fileType === 'application/pdf') {
+      fileTypeDetected = 'pdf'
+    } else if (fileName.endsWith('.docx') || fileType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+      fileTypeDetected = 'docx'
+    } else if (fileName.endsWith('.txt') || fileType === 'text/plain') {
+      fileTypeDetected = 'txt'
+    }
+    
+    if (!fileTypeDetected) {
+      console.error('[Ingest] サポートされていないファイル形式です')
       return NextResponse.json(
-        { success: false, error: 'PDFファイルのみ対応しています' },
+        { success: false, error: 'PDF、DOCX、TXTファイルのみ対応しています' },
         { status: 400 }
       )
     }
-
-    // PDFからテキスト抽出
-    console.log('[Ingest] PDFからテキスト抽出中...')
+    
+    console.log(`[Ingest] ファイルタイプ: ${fileTypeDetected}`)
+    
+    // ファイルからテキスト抽出
     const arrayBuffer = await file.arrayBuffer()
     const buffer = Buffer.from(arrayBuffer)
+    let extractedText = ''
     
-    // pdf-parseのオプションを設定（文字エンコーディングの改善）
-    const pdfData = await pdfParse(buffer, {
-      // テキスト抽出のオプション
-      max: 0, // 全ページを処理
-    })
-    
-    let extractedText = pdfData.text
-    
-    // 文字化けの修正処理
-    // 不正な文字を除去し、UTF-8として正しく処理
-    extractedText = extractedText
-      // 制御文字を除去（ただし改行やタブは保持）
-      .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '')
-      // 連続する空白を1つに
-      .replace(/\s+/g, ' ')
-      // 先頭・末尾の空白を除去
-      .trim()
+    if (fileTypeDetected === 'pdf') {
+      console.log('[Ingest] PDFからテキスト抽出中...')
+      const pdfData = await pdfParse(buffer, {
+        max: 0, // 全ページを処理
+      })
+      extractedText = pdfData.text
+      
+      // 文字化けの修正処理
+      extractedText = extractedText
+        .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '')
+        .replace(/\s+/g, ' ')
+        .trim()
+    } else if (fileTypeDetected === 'docx') {
+      console.log('[Ingest] DOCXからテキスト抽出中...')
+      const result = await mammoth.extractRawText({ buffer })
+      extractedText = result.value
+      
+      // テキストの正規化
+      extractedText = extractedText
+        .replace(/\s+/g, ' ')
+        .trim()
+    } else if (fileTypeDetected === 'txt') {
+      console.log('[Ingest] TXTからテキスト抽出中...')
+      // UTF-8として読み込み
+      extractedText = buffer.toString('utf-8')
+      
+      // テキストの正規化
+      extractedText = extractedText
+        .replace(/\r\n/g, '\n')
+        .replace(/\r/g, '\n')
+        .replace(/\s+/g, ' ')
+        .trim()
+    }
     
     console.log(`[Ingest] テキスト抽出完了: ${extractedText.length}文字`)
     console.log(`[Ingest] テキストサンプル（最初の200文字）: ${extractedText.substring(0, 200)}`)
@@ -155,13 +186,13 @@ export async function POST(request: NextRequest) {
 
     // 文書情報をSupabaseに保存
     console.log('[Ingest] 文書情報をSupabaseに保存中...')
-    const documentTitle = title || file.name.replace(/\.pdf$/i, '')
+    const documentTitle = title || file.name.replace(/\.(pdf|docx|txt)$/i, '')
     const { data: documentData, error: documentError } = await supabaseClient
       .from('documents')
       .insert({
         title: documentTitle,
         file_name: file.name,
-        file_type: 'pdf',
+        file_type: fileTypeDetected,
         uploaded_at: new Date().toISOString(),
       })
       .select()
@@ -178,13 +209,22 @@ export async function POST(request: NextRequest) {
     const documentId = documentData.id
     console.log(`[Ingest] 文書保存完了: ID=${documentId}`)
 
-    // PDFファイルをSupabase Storageに保存
-    console.log('[Ingest] PDFファイルをSupabase Storageに保存中...')
+    // ファイルをSupabase Storageに保存
+    console.log(`[Ingest] ${fileTypeDetected.toUpperCase()}ファイルをSupabase Storageに保存中...`)
     const filePath = `documents/${documentId}/${file.name}`
+    
+    // ファイルタイプに応じたContent-Typeを設定
+    let contentType = 'application/pdf'
+    if (fileTypeDetected === 'docx') {
+      contentType = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+    } else if (fileTypeDetected === 'txt') {
+      contentType = 'text/plain'
+    }
+    
     const { error: storageError } = await supabaseClient.storage
       .from('documents')
       .upload(filePath, buffer, {
-        contentType: 'application/pdf',
+        contentType: contentType,
         upsert: false,
       })
 

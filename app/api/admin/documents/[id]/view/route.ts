@@ -74,10 +74,20 @@ export async function GET(
       if (!storageError && fileData) {
         console.log(`[PDF View API] ファイル取得成功: ${path}`)
         const arrayBuffer = await fileData.arrayBuffer()
+        
+        // ファイルタイプに応じたContent-Typeを設定
+        const fileName = document.file_name.toLowerCase()
+        let contentType = 'application/pdf'
+        if (fileName.endsWith('.docx')) {
+          contentType = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+        } else if (fileName.endsWith('.txt')) {
+          contentType = 'text/plain; charset=utf-8'
+        }
+        
         return new NextResponse(arrayBuffer, {
           headers: {
-            'Content-Type': 'application/pdf',
-            'Content-Disposition': `inline; filename="${document.file_name}"`,
+            'Content-Type': contentType,
+            'Content-Disposition': `attachment; filename="${document.file_name}"`,
             'Cache-Control': 'public, max-age=3600',
           },
         })

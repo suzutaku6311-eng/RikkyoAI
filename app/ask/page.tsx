@@ -32,6 +32,8 @@ export default function AskPage() {
   const [history, setHistory] = useState<SearchHistoryItem[]>([])
   const [showHistory, setShowHistory] = useState(false)
   const [loadingHistory, setLoadingHistory] = useState(false)
+  const [sourcesPage, setSourcesPage] = useState(1)
+  const [sourcesPerPage, setSourcesPerPage] = useState(5)
 
   // 検索履歴を読み込む
   useEffect(() => {
@@ -95,6 +97,7 @@ export default function AskPage() {
       
       setAnswer(data.answer)
       setSources(data.sources || [])
+      setSourcesPage(1) // 検索結果が変わったら最初のページに戻す
       
       // 履歴を再読み込み
       loadHistory()
@@ -274,16 +277,38 @@ export default function AskPage() {
           </div>
         )}
 
-        {sources.length > 0 && (
-          <div className="animate-fadeIn">
-            <div className="bg-wood-dark text-wood-light px-6 py-4 border-b-4 border-wood-darker rounded-t-lg shadow-wood-md mb-4">
-              <h2 className="text-2xl font-bold flex items-center gap-2">
-                <span>📚</span>
-                参照文書 ({sources.length}件)
-              </h2>
-            </div>
-            <div className="space-y-4">
-              {sources.map((source, index) => (
+        {sources.length > 0 && (() => {
+          const totalPages = Math.ceil(sources.length / sourcesPerPage)
+          const startIndex = (sourcesPage - 1) * sourcesPerPage
+          const endIndex = startIndex + sourcesPerPage
+          const paginatedSources = sources.slice(startIndex, endIndex)
+          
+          return (
+            <div className="animate-fadeIn">
+              <div className="bg-wood-dark text-wood-light px-6 py-4 border-b-4 border-wood-darker rounded-t-lg shadow-wood-md mb-4 flex justify-between items-center">
+                <h2 className="text-2xl font-bold flex items-center gap-2">
+                  <span>📚</span>
+                  参照文書 ({sources.length}件)
+                </h2>
+                {sources.length > sourcesPerPage && (
+                  <div className="flex items-center gap-2">
+                    <select
+                      value={sourcesPerPage}
+                      onChange={(e) => {
+                        setSourcesPerPage(Number(e.target.value))
+                        setSourcesPage(1)
+                      }}
+                      className="px-3 py-1 bg-wood-light text-wood-darkest border-2 border-wood-darker rounded-lg font-bold text-sm"
+                    >
+                      <option value={5}>5件/ページ</option>
+                      <option value={10}>10件/ページ</option>
+                      <option value={20}>20件/ページ</option>
+                    </select>
+                  </div>
+                )}
+              </div>
+              <div className="space-y-4">
+                {paginatedSources.map((source, index) => (
                 <div
                   key={source.id}
                   className="bg-wood-light p-6 border-4 border-wood-dark shadow-wood-md rounded-lg hover:shadow-wood-lg transition-all transform hover:scale-[1.01] animate-fadeIn"
@@ -328,9 +353,33 @@ export default function AskPage() {
                   )}
                 </div>
               ))}
+              </div>
+              
+              {/* ページネーション */}
+              {totalPages > 1 && (
+                <div className="mt-6 flex justify-center items-center gap-2">
+                  <button
+                    onClick={() => setSourcesPage(Math.max(1, sourcesPage - 1))}
+                    disabled={sourcesPage === 1}
+                    className="px-4 py-2 bg-wood-dark text-wood-light border-2 border-wood-darker font-bold hover:bg-wood-darker disabled:bg-wood-darkest disabled:border-wood-darkest disabled:cursor-not-allowed shadow-wood-sm transition-all transform hover:scale-105 disabled:transform-none rounded-lg"
+                  >
+                    ← 前へ
+                  </button>
+                  <span className="px-4 py-2 bg-wood-light text-wood-darkest border-2 border-wood-dark font-bold rounded-lg">
+                    {sourcesPage} / {totalPages}
+                  </span>
+                  <button
+                    onClick={() => setSourcesPage(Math.min(totalPages, sourcesPage + 1))}
+                    disabled={sourcesPage === totalPages}
+                    className="px-4 py-2 bg-wood-dark text-wood-light border-2 border-wood-darker font-bold hover:bg-wood-darker disabled:bg-wood-darkest disabled:border-wood-darkest disabled:cursor-not-allowed shadow-wood-sm transition-all transform hover:scale-105 disabled:transform-none rounded-lg"
+                  >
+                    次へ →
+                  </button>
+                </div>
+              )}
             </div>
-          </div>
-        )}
+          )
+        })()}
 
         {loading && (
           <div className="text-center py-20 border-4 border-dashed border-wood-dark bg-wood-light rounded-lg shadow-wood-md animate-fadeIn">

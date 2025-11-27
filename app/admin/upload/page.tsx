@@ -13,11 +13,17 @@ export default function UploadPage() {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0]
     if (selectedFile) {
-      // ファイルタイプのチェック
-      if (selectedFile.type !== 'application/pdf' && !selectedFile.name.toLowerCase().endsWith('.pdf')) {
-        setMessage({ type: 'error', text: 'PDFファイルのみ対応しています' })
-        return
-      }
+    // ファイルタイプのチェック
+    const fileName = selectedFile.name.toLowerCase()
+    const fileType = selectedFile.type
+    const isPdf = fileName.endsWith('.pdf') || fileType === 'application/pdf'
+    const isDocx = fileName.endsWith('.docx') || fileType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+    const isTxt = fileName.endsWith('.txt') || fileType === 'text/plain'
+    
+    if (!isPdf && !isDocx && !isTxt) {
+      setMessage({ type: 'error', text: 'PDF、DOCX、TXTファイルのみ対応しています' })
+      return
+    }
 
       // ファイルサイズのチェック（Vercel無料プランの制限: 4.5MB）
       const maxSize = 4.5 * 1024 * 1024 // 4.5MB
@@ -31,7 +37,7 @@ export default function UploadPage() {
 
       setFile(selectedFile)
       if (!title) {
-        setTitle(selectedFile.name.replace(/\.pdf$/i, ''))
+        setTitle(selectedFile.name.replace(/\.(pdf|docx|txt)$/i, ''))
       }
       setMessage(null)
     }
@@ -157,13 +163,13 @@ export default function UploadPage() {
               htmlFor="file-input"
               className="block text-sm font-bold text-wood-darkest mb-3 border-b-4 border-wood-dark pb-2"
             >
-              📄 PDFファイル
+              📄 文書ファイル（PDF / DOCX / TXT）
             </label>
             <div className="border-4 border-wood-dark bg-white/50 p-4 rounded-lg shadow-wood-sm">
               <input
                 id="file-input"
                 type="file"
-                accept=".pdf,application/pdf"
+                accept=".pdf,.docx,.txt,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain"
                 onChange={handleFileChange}
                 className="block w-full text-sm text-wood-darkest file:mr-4 file:py-2 file:px-4 file:border-4 file:border-wood-dark file:bg-wood-light file:text-wood-darkest file:font-bold file:cursor-pointer hover:file:bg-wood-lightest file:shadow-wood-sm file:rounded-lg transition-all"
                 disabled={loading}
