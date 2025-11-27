@@ -87,16 +87,38 @@ export async function POST(request: NextRequest) {
     const answer = await generateAnswer(question.trim(), chunks)
     console.log('LLM回答生成完了')
 
+    const sourcesData = chunks.map((chunk) => ({
+      id: chunk.id,
+      content: chunk.content.substring(0, 200) + '...', // プレビュー用に短縮
+      documentId: chunk.documentId,
+      documentTitle: chunk.documentTitle,
+      chunkIndex: chunk.chunkIndex,
+      similarity: chunk.similarity,
+    }))
+
+    // 検索履歴を保存（エラーが発生しても処理は続行）
+    try {
+      await supabaseClient
+        .from('search_history')
+        .insert({
+          question: question.trim(),
+          answer: answer,
+          chunks_used: chunks.map(c => ({
+            id: c.id,
+            documentId: c.documentId,
+            documentTitle: c.documentTitle,
+            similarity: c.similarity,
+          })),
+        })
+      console.log('検索履歴を保存しました')
+    } catch (historyError) {
+      // 履歴保存のエラーは無視（テーブルが存在しない場合など）
+      console.warn('検索履歴の保存に失敗しました（続行）:', historyError)
+    }
+
     return NextResponse.json({
       answer,
-      sources: chunks.map((chunk) => ({
-        id: chunk.id,
-        content: chunk.content.substring(0, 200) + '...', // プレビュー用に短縮
-        documentId: chunk.documentId,
-        documentTitle: chunk.documentTitle,
-        chunkIndex: chunk.chunkIndex,
-        similarity: chunk.similarity,
-      })),
+      sources: sourcesData,
     })
   } catch (error) {
     console.error('RAG検索APIエラー:', error)
