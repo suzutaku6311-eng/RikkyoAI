@@ -25,7 +25,7 @@ export default function UploadPage() {
     const isXls = fileName.endsWith('.xls') || fileType === 'application/vnd.ms-excel'
     
     if (!isPdf && !isDocx && !isTxt && !isXlsx && !isXls) {
-      setMessage({ type: 'error', text: 'PDF、DOCX、TXT、Excel（XLSX/XLS）ファイルのみ対応しています' })
+      setMessage({ type: 'error', text: language === 'ja' ? 'PDF、DOCX、TXT、Excel（XLSX/XLS）ファイルのみ対応しています' : 'Only PDF, DOCX, TXT, and Excel (XLSX/XLS) files are supported' })
       return
     }
 
@@ -76,13 +76,13 @@ export default function UploadPage() {
 
       // ステータスコードに応じたエラーハンドリング
       if (response.status === 413) {
-        throw new Error(t('language') === 'ja' 
+        throw new Error(language === 'ja' 
           ? 'ファイルサイズが大きすぎます。Vercel無料プランの制限により、4.5MB以下のファイルのみアップロードできます。'
           : 'File size is too large. Due to Vercel free plan limitations, only files up to 4.5MB can be uploaded.')
       }
 
       if (response.status === 404) {
-        throw new Error(t('language') === 'ja' 
+        throw new Error(language === 'ja' 
           ? 'APIエンドポイントが見つかりません。ページをリロードして再度お試しください。'
           : 'API endpoint not found. Please reload the page and try again.')
       }
@@ -132,7 +132,7 @@ export default function UploadPage() {
       console.error('アップロードエラー:', err)
       setMessage({
         type: 'error',
-        text: err instanceof Error ? err.message : (t('language') === 'ja' ? '予期しないエラーが発生しました' : 'An unexpected error occurred'),
+        text: err instanceof Error ? err.message : (language === 'ja' ? '予期しないエラーが発生しました' : 'An unexpected error occurred'),
       })
     } finally {
       setLoading(false)
