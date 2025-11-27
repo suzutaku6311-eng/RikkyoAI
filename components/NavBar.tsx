@@ -5,7 +5,7 @@ import { useLanguage } from '@/contexts/LanguageContext'
 import LanguageSwitcher from './LanguageSwitcher'
 
 export default function NavBar() {
-  const { t } = useLanguage()
+  const { t, language } = useLanguage()
 
   return (
     <nav className="bg-wood-dark border-b-4 border-wood-darker shadow-wood-md relative z-20">
