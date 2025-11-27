@@ -4,7 +4,7 @@
 
 CREATE OR REPLACE FUNCTION match_chunks(
   query_embedding vector(3072),
-  match_threshold float DEFAULT 0.7,
+  match_threshold float DEFAULT 0.5,
   match_count int DEFAULT 10
 )
 RETURNS TABLE (
@@ -25,7 +25,8 @@ BEGIN
     chunks.chunk_index,
     1 - (chunks.embedding <=> query_embedding) as similarity
   FROM chunks
-  WHERE 1 - (chunks.embedding <=> query_embedding) > match_threshold
+  WHERE chunks.embedding IS NOT NULL
+    AND 1 - (chunks.embedding <=> query_embedding) > match_threshold
   ORDER BY chunks.embedding <=> query_embedding
   LIMIT match_count;
 END;

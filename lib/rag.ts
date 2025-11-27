@@ -32,6 +32,7 @@ export async function searchSimilarChunks(
     console.log(`Embedding生成完了。次元数: ${questionEmbedding.length}`)
 
     // ベクトル検索（コサイン類似度）
+    console.log('[RAG] RPC関数を呼び出し中...')
     const { data: chunks, error } = await supabase.rpc('match_chunks', {
       query_embedding: questionEmbedding,
       match_threshold: 0.7,
@@ -39,7 +40,8 @@ export async function searchSimilarChunks(
     })
 
     if (error) {
-      console.log('RPC関数が存在しないため、クライアント側でベクトル検索を実行します')
+      console.error('[RAG] RPC関数エラー:', error)
+      console.log('[RAG] RPC関数が存在しないかエラーが発生したため、クライアント側でベクトル検索を実行します')
       // RPC関数が存在しない場合は、すべてのチャンクを取得してから類似度計算
       // pgvector型は配列として返されるが、明示的にキャストする
       const { data: chunksData, error: chunksError } = await supabase
@@ -151,7 +153,7 @@ export async function searchSimilarChunks(
         documents?.map((doc) => [doc.id, doc.title]) || []
       )
 
-      return chunksWithSimilarity.map((chunk) => ({
+      const result = chunksWithSimilarity.map((chunk) => ({
         id: chunk.id,
         content: chunk.content,
         documentId: chunk.document_id,
@@ -159,10 +161,25 @@ export async function searchSimilarChunks(
         chunkIndex: chunk.chunk_index,
         similarity: chunk.similarity,
       }))
+      
+      console.log(`[RAG] フォールバック処理の結果を返します: ${result.length}件`)
+      return result
     }
 
     // RPC関数が存在する場合
+    console.log(`[RAG] RPC関数から ${chunks?.length || 0}件のチャンクを取得`)
+    
+    if (!chunks || chunks.length === 0) {
+      console.log('[RAG] RPC関数からチャンクが返されませんでした（閾値が高すぎる可能性があります）')
+      // 閾値を下げて再試行するか、フォールバック処理に移行
+      console.log('[RAG] フォールバック処理に移行します')
+      // フォールバック処理に移行するため、エラーを発生させてフォールバック処理を実行
+      throw new Error('RPC関数からチャンクが返されませんでした')
+    }
+
     const documentIds = [...new Set(chunks.map((c: any) => c.document_id))]
+    console.log(`[RAG] 関連文書ID: ${documentIds.length}件`)
+    
     const { data: documents } = await supabase
       .from('documents')
       .select('id, title')
@@ -172,7 +189,7 @@ export async function searchSimilarChunks(
       documents?.map((doc) => [doc.id, doc.title]) || []
     )
 
-    return chunks.map((chunk: any) => ({
+    const result = chunks.map((chunk: any) => ({
       id: chunk.id,
       content: chunk.content,
       documentId: chunk.document_id,
@@ -180,6 +197,9 @@ export async function searchSimilarChunks(
       chunkIndex: chunk.chunk_index,
       similarity: chunk.similarity,
     }))
+    
+    console.log(`[RAG] 検索結果を返します: ${result.length}件`)
+    return result
   } catch (error) {
     console.error('RAG検索エラー:', error)
     throw error
