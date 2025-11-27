@@ -69,6 +69,10 @@ const config: Config = {
           '0%, 100%': { opacity: '0.2' },
           '50%': { opacity: '0.4' },
         },
+        'pulse-gentle': {
+          '0%, 100%': { transform: 'scale(1)' },
+          '50%': { transform: 'scale(1.1)' },
+        },
         grow: {
           '0%': { height: '0%' },
           '100%': { height: '100%' },
@@ -83,6 +87,7 @@ const config: Config = {
         'spin-slow': 'spin-slow 3s linear infinite',
         'bounce-slow': 'bounce-slow 2s ease-in-out infinite',
         'pulse-slow': 'pulse-slow 4s ease-in-out infinite',
+        'pulse-gentle': 'pulse-gentle 2s ease-in-out infinite',
         grow: 'grow 0.5s ease-out',
       },
     },

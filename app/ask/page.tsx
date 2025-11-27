@@ -186,7 +186,7 @@ export default function AskPage() {
             </div>
             {loadingHistory ? (
               <div className="text-center py-8">
-                <div className="inline-block animate-spin-slow text-4xl mb-2">🌳</div>
+                <div className="inline-block animate-pulse-gentle text-4xl mb-2">🌳</div>
                 <p className="text-wood-darker">読み込み中...</p>
               </div>
             ) : history.length === 0 ? (
@@ -334,7 +334,7 @@ export default function AskPage() {
 
         {loading && (
           <div className="text-center py-20 border-4 border-dashed border-wood-dark bg-wood-light rounded-lg shadow-wood-md animate-fadeIn">
-            <div className="inline-block animate-spin-slow mb-4 text-6xl">🌳</div>
+            <div className="inline-block animate-pulse-gentle mb-4 text-6xl">🌳</div>
             <p className="text-wood-dark font-bold text-lg">検索中...</p>
             <p className="text-wood-darker text-sm font-mono mt-2">Searching Archive...</p>
           </div>

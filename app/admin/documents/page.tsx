@@ -175,7 +175,7 @@ export default function DocumentsPage() {
 
         {loading && (
           <div className="text-center py-20 border-4 border-dashed border-wood-dark bg-wood-light rounded-lg shadow-wood-md animate-fadeIn">
-            <div className="inline-block animate-spin-slow mb-4 text-6xl">🌳</div>
+            <div className="inline-block animate-pulse-gentle mb-4 text-6xl">🌳</div>
             <p className="text-wood-dark font-bold text-lg">読み込み中...</p>
             <p className="text-wood-darker text-sm font-mono mt-2">Loading Archive...</p>
           </div>
