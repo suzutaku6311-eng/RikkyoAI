@@ -177,23 +177,31 @@ export default function UploadPage() {
               {t('upload.file.label')}
             </label>
             <div className="border-4 border-wood-dark bg-white/50 p-4 rounded-lg shadow-wood-sm">
-              <input
-                id="file-input"
-                type="file"
-                accept=".pdf,.docx,.txt,.xlsx,.xls,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel"
-                onChange={handleFileChange}
-                className="block w-full text-sm text-wood-darkest file:mr-4 file:py-2 file:px-4 file:border-4 file:border-wood-dark file:bg-wood-light file:text-wood-darkest file:font-bold file:cursor-pointer hover:file:bg-wood-lightest file:shadow-wood-sm file:rounded-lg transition-all"
-                disabled={loading}
-              />
-              {file ? (
-                <p className="mt-3 text-sm text-wood-darkest font-mono bg-wood-light px-4 py-2 border-2 border-wood-dark rounded-lg shadow-wood-sm">
-                  {t('upload.file.selected')}: {file.name} ({(file.size / 1024 / 1024).toFixed(2)} MB)
-                </p>
-              ) : (
-                <p className="mt-3 text-sm text-wood-darker font-mono bg-wood-light/50 px-4 py-2 border-2 border-wood-dark/50 rounded-lg">
-                  {t('upload.file.notSelected')}
-                </p>
-              )}
+              <div className="flex items-center gap-4">
+                <input
+                  id="file-input"
+                  type="file"
+                  accept=".pdf,.docx,.txt,.xlsx,.xls,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel"
+                  onChange={handleFileChange}
+                  className="hidden"
+                  disabled={loading}
+                />
+                <label
+                  htmlFor="file-input"
+                  className="px-6 py-3 bg-wood-light text-wood-darkest border-4 border-wood-dark font-bold cursor-pointer hover:bg-wood-lightest shadow-wood-sm rounded-lg transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                >
+                  {t('upload.file.selectButton')}
+                </label>
+                {file ? (
+                  <p className="flex-1 text-sm text-wood-darkest font-mono bg-wood-light px-4 py-2 border-2 border-wood-dark rounded-lg shadow-wood-sm">
+                    {t('upload.file.selected')}: {file.name} ({(file.size / 1024 / 1024).toFixed(2)} MB)
+                  </p>
+                ) : (
+                  <p className="flex-1 text-sm text-wood-darker font-mono bg-wood-light/50 px-4 py-2 border-2 border-wood-dark/50 rounded-lg">
+                    {t('upload.file.notSelected')}
+                  </p>
+                )}
+              </div>
             </div>
           </div>
 

@@ -80,6 +80,7 @@ const translations = {
     'upload.instructions.step4': '処理が完了すると、自動的にチャンク分割とEmbedding生成が行われます',
     'upload.file.selected': '選択中',
     'upload.file.notSelected': 'ファイルが選択されていません',
+    'upload.file.selectButton': 'ファイルを選択',
     
     // 文書一覧ページ
     'documents.title': '📚 文書一覧',
@@ -167,6 +168,7 @@ const translations = {
     'upload.instructions.step4': 'Chunking and embedding generation will be performed automatically upon completion',
     'upload.file.selected': 'Selected',
     'upload.file.notSelected': 'No file selected',
+    'upload.file.selectButton': 'Choose File',
     
     // Documents page
     'documents.title': '📚 Documents',
