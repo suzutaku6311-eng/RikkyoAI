@@ -340,10 +340,10 @@ export async function generateAnswer(
       )
       .join('\n\n')
 
-    const systemPrompt = `あなたは社内文書を参照して質問に答えるAIアシスタントです。
-以下の文書から情報を抽出して、質問に正確に答えてください。
-文書に記載されていない内容については、「文書に記載されていないため、回答できません」と答えてください。
-回答は簡潔で分かりやすく、必要に応じて文書の内容を引用してください。`
+    const systemPrompt = `You are an AI assistant that answers questions based on Rikkyo School in England documents.
+Extract information from the provided documents and answer questions accurately.
+If the information is not found in the documents, please respond with "The information is not available in the provided documents."
+Provide clear and concise answers, and cite document content when necessary.`
 
     const userPrompt = `以下の文書を参照して、質問に答えてください。
 

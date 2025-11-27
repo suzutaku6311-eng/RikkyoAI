@@ -6,10 +6,10 @@ export default function Home() {
       <div className="max-w-5xl mx-auto">
         <div className="mb-12 pt-8">
           <h1 className="text-5xl font-bold mb-4 text-stone-900 tracking-tight border-b-4 border-stone-800 pb-4 inline-block">
-            社内文書AIシステム
+            Rikkyo School in England<br />Insight AI System
           </h1>
           <p className="text-stone-700 mb-2 text-lg mt-6 leading-relaxed">
-            社内PDF、規程、会議資料を横断検索し自然言語で回答できるAIシステムです。
+            Search and query Rikkyo School documents with AI-powered natural language responses.
           </p>
           <p className="text-stone-600 text-sm font-mono">
             RAG (Retrieval-Augmented Generation) System

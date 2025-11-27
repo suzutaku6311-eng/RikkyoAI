@@ -3,8 +3,8 @@ import Link from 'next/link'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: '社内文書AIシステム（RAG）',
-  description: '社内PDF、規程、会議資料を横断検索し自然言語で回答できるAI',
+  title: 'Rikkyo School in England Insight AI System',
+  description: 'Rikkyo School documents search and AI-powered Q&A system',
 }
 
 export default function RootLayout({
@@ -24,7 +24,7 @@ export default function RootLayout({
                   className="flex items-center px-4 py-2 text-xl font-bold text-wood-light hover:text-wood-lightest tracking-tight transition-colors"
                 >
                   <span className="text-2xl mr-2">🌳</span>
-                  <span className="border-b-2 border-wood-light pb-1">社内文書AI</span>
+                  <span className="border-b-2 border-wood-light pb-1">Rikkyo Insight AI</span>
                 </Link>
               </div>
               <div className="flex items-center space-x-3">

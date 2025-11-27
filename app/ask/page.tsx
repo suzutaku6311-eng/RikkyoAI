@@ -151,14 +151,14 @@ export default function AskPage() {
           <div className="relative flex justify-between items-start">
             <div className="flex-1">
               <div className="absolute -left-4 top-0 bottom-0 w-1 bg-wood-dark animate-grow"></div>
-              <h1 className="text-5xl font-bold mb-3 text-wood-dark tracking-tight relative">
-                <span className="relative z-10 bg-wood-pattern px-4 py-2 rounded-lg border-4 border-wood-dark shadow-wood-lg inline-block transform hover:scale-105 transition-transform">
-                  🔍 文書AI検索
-                </span>
-              </h1>
-              <p className="text-wood-darker text-sm font-mono mt-3 ml-4 tracking-wider">
-                Query Documents → Generate Answer
-              </p>
+            <h1 className="text-5xl font-bold mb-3 text-wood-dark tracking-tight relative">
+              <span className="relative z-10 bg-wood-pattern px-4 py-2 rounded-lg border-4 border-wood-dark shadow-wood-lg inline-block transform hover:scale-105 transition-transform">
+                🔍 Rikkyo Insight AI
+              </span>
+            </h1>
+            <p className="text-wood-darker text-sm font-mono mt-3 ml-4 tracking-wider">
+              Query Documents → Generate Answer
+            </p>
             </div>
             <button
               onClick={() => {
@@ -343,7 +343,7 @@ export default function AskPage() {
         {!answer && !loading && !error && (
           <div className="text-center py-20 border-4 border-dashed border-wood-dark bg-wood-light rounded-lg shadow-wood-md animate-fadeIn">
             <div className="text-6xl mb-4 animate-bounce-slow">💬</div>
-            <p className="text-wood-dark font-bold text-xl mb-2">質問を入力して、社内文書を検索してください</p>
+            <p className="text-wood-dark font-bold text-xl mb-2">質問を入力して、Rikkyo School文書を検索してください</p>
             <p className="text-wood-darker text-sm font-mono">Enter your question above</p>
           </div>
         )}
