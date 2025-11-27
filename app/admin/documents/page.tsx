@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { useLanguage } from '@/contexts/LanguageContext'
 
 type Document = {
   id: string
@@ -14,6 +15,7 @@ type Document = {
 }
 
 export default function DocumentsPage() {
+  const { t } = useLanguage()
   const [documents, setDocuments] = useState<Document[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -70,7 +72,7 @@ export default function DocumentsPage() {
   }
 
   const handleRegenerate = async (documentId: string) => {
-    if (!confirm('この文書のEmbeddingを再生成しますか？\n（処理には時間がかかる場合があります）')) {
+    if (!confirm(t('language') === 'ja' ? 'この文書のEmbeddingを再生成しますか？\n（処理には時間がかかる場合があります）' : 'Regenerate embeddings for this document?\n(This may take some time)')) {
       return
     }
 
@@ -111,7 +113,7 @@ export default function DocumentsPage() {
   }
 
   const handleDelete = async (documentId: string) => {
-    if (!confirm('この文書を削除しますか？')) {
+    if (!confirm(t('language') === 'ja' ? 'この文書を削除しますか？' : 'Delete this document?')) {
       return
     }
 
@@ -152,7 +154,7 @@ export default function DocumentsPage() {
       await fetchDocuments()
       
       // 成功メッセージを表示
-      setMessage({ type: 'success', text: '文書を削除しました' })
+      setMessage({ type: 'success', text: t('language') === 'ja' ? '文書を削除しました' : 'Document deleted' })
       setTimeout(() => setMessage(null), 3000)
     } catch (err) {
       console.error('[Documents] 削除エラー:', err)
@@ -191,11 +193,11 @@ export default function DocumentsPage() {
             <div className="absolute -left-4 top-0 bottom-0 w-1 bg-wood-dark animate-grow"></div>
             <h1 className="text-5xl font-bold mb-3 text-wood-dark tracking-tight relative">
               <span className="relative z-10 bg-wood-pattern px-4 py-2 rounded-lg border-4 border-wood-dark shadow-wood-lg inline-block transform hover:scale-105 transition-transform">
-                文書アーカイブ
+                {t('documents.title')}
               </span>
             </h1>
             <p className="text-wood-darker text-sm font-mono mt-3 ml-4 tracking-wider">
-              📚 Document Archive Tree
+              {t('documents.subtitle')}
             </p>
           </div>
           <div className="flex gap-4">
@@ -204,13 +206,13 @@ export default function DocumentsPage() {
               disabled={loading}
               className="px-6 py-3 bg-wood-light text-wood-dark border-4 border-wood-dark font-bold hover:bg-wood-lighter disabled:bg-wood-darkest disabled:cursor-not-allowed shadow-wood-md transition-all transform hover:scale-105 hover:shadow-wood-lg disabled:transform-none rounded-lg"
             >
-              <span className="inline-block">🔄</span> 更新
+              <span className="inline-block">🔄</span> {t('documents.refresh')}
             </button>
             <Link
               href="/admin/upload"
               className="px-8 py-3 bg-wood-dark text-wood-light border-4 border-wood-darker font-bold hover:bg-wood-darker shadow-wood-md transition-all transform hover:scale-105 hover:shadow-wood-lg rounded-lg"
             >
-              + 新規アップロード
+              {t('documents.upload')}
             </Link>
           </div>
         </div>
@@ -218,8 +220,8 @@ export default function DocumentsPage() {
         {loading && (
           <div className="text-center py-20 border-4 border-dashed border-wood-dark bg-wood-light rounded-lg shadow-wood-md animate-fadeIn">
             <div className="inline-block animate-pulse-gentle mb-4 text-6xl">🌳</div>
-            <p className="text-wood-dark font-bold text-lg">読み込み中...</p>
-            <p className="text-wood-darker text-sm font-mono mt-2">Loading Archive...</p>
+            <p className="text-wood-dark font-bold text-lg">{t('documents.loading')}</p>
+            <p className="text-wood-darker text-sm font-mono mt-2">{t('documents.subtitle')}</p>
           </div>
         )}
 
@@ -231,14 +233,14 @@ export default function DocumentsPage() {
                 : 'bg-red-100 border-red-700 text-red-900'
             }`}
           >
-            <div className="font-bold mb-2 text-lg">{message.type === 'success' ? '✅ 成功' : '❌ エラー'}</div>
+            <div className="font-bold mb-2 text-lg">{message.type === 'success' ? t('upload.success') : t('upload.error')}</div>
             <div className="font-medium">{message.text}</div>
           </div>
         )}
 
         {error && (
           <div className="mb-6 p-6 bg-red-100 border-4 border-red-700 text-red-900 shadow-wood-md rounded-lg animate-slideDown">
-            <div className="font-bold mb-2 text-lg">❌ エラー</div>
+            <div className="font-bold mb-2 text-lg">{t('upload.error')}</div>
             <div className="font-medium">{error}</div>
           </div>
         )}
@@ -246,12 +248,12 @@ export default function DocumentsPage() {
         {!loading && !error && documents.length === 0 && (
           <div className="text-center py-20 border-4 border-dashed border-wood-dark bg-wood-light rounded-lg shadow-wood-md animate-fadeIn">
             <div className="text-6xl mb-4 animate-bounce-slow">📄</div>
-            <p className="text-wood-dark mb-6 font-bold text-xl">アップロードされた文書がありません</p>
+            <p className="text-wood-dark mb-6 font-bold text-xl">{t('documents.empty')}</p>
             <Link
               href="/admin/upload"
               className="inline-block px-8 py-4 bg-wood-dark text-wood-light border-4 border-wood-darker font-bold hover:bg-wood-darker shadow-wood-md transition-all transform hover:scale-105 hover:shadow-wood-lg rounded-lg"
             >
-              + 文書をアップロード
+              {t('documents.empty.upload')}
             </Link>
           </div>
         )}
@@ -259,26 +261,26 @@ export default function DocumentsPage() {
         {!loading && !error && documents.length > 0 && (
           <div className="bg-wood-light border-4 border-wood-dark shadow-wood-lg overflow-hidden rounded-lg animate-fadeIn">
             <div className="bg-wood-dark text-wood-light px-6 py-4 border-b-4 border-wood-darker">
-              <h2 className="text-xl font-bold">📚 文書リスト</h2>
+              <h2 className="text-xl font-bold">{t('documents.title')}</h2>
             </div>
             <div className="overflow-x-auto">
               <table className="min-w-full">
                 <thead className="bg-wood-darker text-wood-light border-b-4 border-wood-darkest">
                   <tr>
                     <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider border-r-2 border-wood-darkest">
-                      タイトル
+                      {t('documents.table.title')}
                     </th>
                     <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider border-r-2 border-wood-darkest">
-                      ファイル名
+                      {t('documents.table.filename')}
                     </th>
                     <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider border-r-2 border-wood-darkest">
-                      チャンク数
+                      {t('documents.table.chunks')}
                     </th>
                     <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider border-r-2 border-wood-darkest">
-                      アップロード日時
+                      {t('documents.table.uploaded')}
                     </th>
                     <th className="px-6 py-4 text-right text-xs font-bold uppercase tracking-wider">
-                      操作
+                      {t('documents.table.actions')}
                     </th>
                   </tr>
                 </thead>
@@ -328,29 +330,29 @@ export default function DocumentsPage() {
                               className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-bold rounded-lg shadow-md transition-all transform hover:scale-105 inline-block"
                               title={`${doc.file_type.toUpperCase()}をダウンロード`}
                             >
-                              ⬇️ ダウンロード
+                              {t('documents.download')}
                             </a>
                           )}
                           <button
                             onClick={() => handleRegenerate(doc.id)}
                             disabled={regenerating === doc.id}
                             className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-bold rounded-lg shadow-md transition-all transform hover:scale-105 disabled:transform-none"
-                            title="Embeddingを再生成"
+                            title={t('documents.regenerate')}
                           >
                             {regenerating === doc.id ? (
                               <span className="flex items-center gap-2">
                                 <span className="inline-block animate-pulse-gentle">🔄</span>
-                                再生成中...
+                                {t('documents.regenerating')}
                               </span>
                             ) : (
-                              '🔄 再生成'
+                              `🔄 ${t('documents.regenerate')}`
                             )}
                           </button>
                           <button
                             onClick={() => handleDelete(doc.id)}
                             className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-bold rounded-lg shadow-md transition-all transform hover:scale-105"
                           >
-                            削除
+                            {t('documents.delete')}
                           </button>
                         </div>
                       </td>
@@ -364,7 +366,7 @@ export default function DocumentsPage() {
 
         <div className="mt-8 text-sm text-wood-darkest font-bold bg-wood-light px-6 py-3 border-4 border-wood-dark inline-block shadow-wood-md rounded-lg animate-fadeIn">
           <span className="text-lg mr-2">🌳</span>
-          合計: <span className="text-2xl text-wood-darker">{documents.length}</span> 件の文書
+          {t('documents.total')}: <span className="text-2xl text-wood-darker">{documents.length}</span> {t('documents.count')}
         </div>
       </div>
     </div>

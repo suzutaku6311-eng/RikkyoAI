@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useLanguage } from '@/contexts/LanguageContext'
 
 type Source = {
   id: string
@@ -24,6 +25,7 @@ type SearchHistoryItem = {
 }
 
 export default function AskPage() {
+  const { t } = useLanguage()
   const [question, setQuestion] = useState('')
   const [loading, setLoading] = useState(false)
   const [answer, setAnswer] = useState<string | null>(null)
@@ -156,11 +158,11 @@ export default function AskPage() {
               <div className="absolute -left-4 top-0 bottom-0 w-1 bg-wood-dark animate-grow"></div>
             <h1 className="text-5xl font-bold mb-3 text-wood-dark tracking-tight relative">
               <span className="relative z-10 bg-wood-pattern px-4 py-2 rounded-lg border-4 border-wood-dark shadow-wood-lg inline-block transform hover:scale-105 transition-transform">
-                🔍 Rikkyo School in England Insight AI
+                {t('search.title')}
               </span>
             </h1>
             <p className="text-wood-darker text-sm font-mono mt-3 ml-4 tracking-wider">
-              Query Documents → Generate Answer
+              {t('search.subtitle')}
             </p>
             </div>
             <button
@@ -170,7 +172,7 @@ export default function AskPage() {
               }}
               className="px-6 py-3 bg-wood-dark text-wood-light border-4 border-wood-darker font-bold hover:bg-wood-darker shadow-wood-md transition-all transform hover:scale-105 rounded-lg"
             >
-              📜 履歴
+              {t('search.history')}
             </button>
           </div>
         </div>
@@ -179,22 +181,22 @@ export default function AskPage() {
         {showHistory && (
           <div className="mb-8 bg-wood-light border-4 border-wood-dark rounded-lg shadow-wood-lg p-6 animate-slideDown">
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-xl font-bold text-wood-darkest">検索履歴</h3>
+              <h3 className="text-xl font-bold text-wood-darkest">{t('search.history.title')}</h3>
               <button
                 onClick={() => setShowHistory(false)}
                 className="text-wood-darker hover:text-wood-darkest font-bold"
               >
-                ✕ 閉じる
+                {t('search.history.close')}
               </button>
             </div>
             {loadingHistory ? (
               <div className="text-center py-8">
                 <div className="inline-block animate-pulse-gentle text-4xl mb-2">🌳</div>
-                <p className="text-wood-darker">読み込み中...</p>
+                <p className="text-wood-darker">{t('search.history.loading')}</p>
               </div>
             ) : history.length === 0 ? (
               <div className="text-center py-8 text-wood-darker">
-                <p>検索履歴がありません</p>
+                <p>{t('search.history.empty')}</p>
               </div>
             ) : (
               <div className="space-y-3 max-h-96 overflow-y-auto">
@@ -219,7 +221,7 @@ export default function AskPage() {
                         }}
                         className="ml-4 px-3 py-1 bg-red-100 text-red-700 border-2 border-red-600 rounded hover:bg-red-200 font-bold text-sm opacity-0 group-hover:opacity-100 transition-opacity"
                       >
-                        削除
+                        {t('search.history.delete')}
                       </button>
                     </div>
                   </div>
@@ -235,7 +237,7 @@ export default function AskPage() {
               type="text"
               value={question}
               onChange={(e) => setQuestion(e.target.value)}
-              placeholder="質問を入力してください（例: 社内規程について教えてください）"
+              placeholder={t('search.placeholder')}
               className="flex-1 px-6 py-5 border-4 border-wood-dark bg-wood-light text-wood-darkest placeholder-wood-darker focus:outline-none focus:bg-wood-lightest focus:border-wood-darker font-medium shadow-wood-md rounded-lg text-lg"
               disabled={loading}
             />
@@ -247,10 +249,10 @@ export default function AskPage() {
               {loading ? (
                 <span className="flex items-center gap-2">
                   <span className="inline-block animate-spin-slow">🔍</span>
-                  検索中...
+                  {t('search.loading')}
                 </span>
               ) : (
-                '🔍 検索'
+                t('search.button')
               )}
             </button>
           </div>
@@ -258,7 +260,7 @@ export default function AskPage() {
 
         {error && (
           <div className="mb-6 p-6 bg-red-100 border-4 border-red-700 text-red-900 shadow-wood-md rounded-lg animate-slideDown">
-            <div className="font-bold mb-2 text-lg">❌ エラー</div>
+            <div className="font-bold mb-2 text-lg">{t('search.error')}</div>
             <div className="font-medium">{error}</div>
           </div>
         )}
@@ -268,7 +270,7 @@ export default function AskPage() {
             <div className="bg-wood-dark text-wood-light px-6 py-4 border-b-4 border-wood-darker rounded-t-lg shadow-wood-md">
               <h2 className="text-2xl font-bold flex items-center gap-2">
                 <span>💡</span>
-                回答
+                {t('search.answer.title')}
               </h2>
             </div>
             <div className="bg-wood-light p-8 border-4 border-wood-dark border-t-0 rounded-b-lg shadow-wood-lg">
@@ -288,7 +290,7 @@ export default function AskPage() {
               <div className="bg-wood-dark text-wood-light px-6 py-4 border-b-4 border-wood-darker rounded-t-lg shadow-wood-md mb-4 flex justify-between items-center">
                 <h2 className="text-2xl font-bold flex items-center gap-2">
                   <span>📚</span>
-                  参照文書 ({sources.length}件)
+                  {t('search.sources.title')} ({sources.length}{t('search.sources.count')})
                 </h2>
                 {sources.length > sourcesPerPage && (
                   <div className="flex items-center gap-2">
@@ -300,9 +302,9 @@ export default function AskPage() {
                       }}
                       className="px-3 py-1 bg-wood-light text-wood-darkest border-2 border-wood-darker rounded-lg font-bold text-sm"
                     >
-                      <option value={5}>5件/ページ</option>
-                      <option value={10}>10件/ページ</option>
-                      <option value={20}>20件/ページ</option>
+                      <option value={5}>5{t('search.pagination.items')}</option>
+                      <option value={10}>10{t('search.pagination.items')}</option>
+                      <option value={20}>20{t('search.pagination.items')}</option>
                     </select>
                   </div>
                 )}
@@ -318,12 +320,12 @@ export default function AskPage() {
                     <div className="flex-1">
                       <h3 className="font-bold text-wood-darkest text-xl mb-2 flex items-center gap-2">
                         <span className="text-2xl">📄</span>
-                        {source.documentTitle || `文書 ${index + 1}`}
+                        {source.documentTitle || (t('language') === 'ja' ? `文書 ${index + 1}` : `Document ${index + 1}`)}
                       </h3>
                       {source.similarity !== undefined && (
                         <div className="mt-2">
                           <div className="flex items-center gap-2 mb-1">
-                            <span className="text-sm text-wood-darker font-mono">類似度:</span>
+                            <span className="text-sm text-wood-darker font-mono">{t('language') === 'ja' ? '類似度:' : 'Similarity:'}</span>
                             <div className="flex-1 bg-wood-darker rounded-full h-3 overflow-hidden">
                               <div 
                                 className="h-full bg-gradient-to-r from-green-600 to-blue-600 transition-all duration-500"
@@ -363,17 +365,17 @@ export default function AskPage() {
                     disabled={sourcesPage === 1}
                     className="px-4 py-2 bg-wood-dark text-wood-light border-2 border-wood-darker font-bold hover:bg-wood-darker disabled:bg-wood-darkest disabled:border-wood-darkest disabled:cursor-not-allowed shadow-wood-sm transition-all transform hover:scale-105 disabled:transform-none rounded-lg"
                   >
-                    ← 前へ
+                    {t('search.pagination.prev')}
                   </button>
                   <span className="px-4 py-2 bg-wood-light text-wood-darkest border-2 border-wood-dark font-bold rounded-lg">
-                    {sourcesPage} / {totalPages}
+                    {sourcesPage} {t('search.pagination.page')} {totalPages}
                   </span>
                   <button
                     onClick={() => setSourcesPage(Math.min(totalPages, sourcesPage + 1))}
                     disabled={sourcesPage === totalPages}
                     className="px-4 py-2 bg-wood-dark text-wood-light border-2 border-wood-darker font-bold hover:bg-wood-darker disabled:bg-wood-darkest disabled:border-wood-darkest disabled:cursor-not-allowed shadow-wood-sm transition-all transform hover:scale-105 disabled:transform-none rounded-lg"
                   >
-                    次へ →
+                    {t('search.pagination.next')}
                   </button>
                 </div>
               )}
@@ -384,16 +386,16 @@ export default function AskPage() {
         {loading && (
           <div className="text-center py-20 border-4 border-dashed border-wood-dark bg-wood-light rounded-lg shadow-wood-md animate-fadeIn">
             <div className="inline-block animate-pulse-gentle mb-4 text-6xl">🌳</div>
-            <p className="text-wood-dark font-bold text-lg">検索中...</p>
-            <p className="text-wood-darker text-sm font-mono mt-2">Searching Archive...</p>
+            <p className="text-wood-dark font-bold text-lg">{t('search.loading.title')}</p>
+            <p className="text-wood-darker text-sm font-mono mt-2">{t('search.loading.subtitle')}</p>
           </div>
         )}
 
         {!answer && !loading && !error && (
           <div className="text-center py-20 border-4 border-dashed border-wood-dark bg-wood-light rounded-lg shadow-wood-md animate-fadeIn">
             <div className="text-6xl mb-4 animate-bounce-slow">💬</div>
-            <p className="text-wood-dark font-bold text-xl mb-2">質問を入力して、Rikkyo School文書を検索してください</p>
-            <p className="text-wood-darker text-sm font-mono">Enter your question above</p>
+            <p className="text-wood-dark font-bold text-xl mb-2">{t('search.empty.title')}</p>
+            <p className="text-wood-darker text-sm font-mono">{t('search.empty.subtitle')}</p>
           </div>
         )}
       </div>

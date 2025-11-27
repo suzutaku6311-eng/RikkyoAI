@@ -2,8 +2,10 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { useLanguage } from '@/contexts/LanguageContext'
 
 export default function UploadPage() {
+  const { t } = useLanguage()
   const [file, setFile] = useState<File | null>(null)
   const [title, setTitle] = useState('')
   const [loading, setLoading] = useState(false)
@@ -150,11 +152,11 @@ export default function UploadPage() {
             <div className="absolute -left-4 top-0 bottom-0 w-1 bg-wood-dark animate-grow"></div>
             <h1 className="text-5xl font-bold mb-3 text-wood-dark tracking-tight relative">
               <span className="relative z-10 bg-wood-pattern px-4 py-2 rounded-lg border-4 border-wood-dark shadow-wood-lg inline-block transform hover:scale-105 transition-transform">
-                📤 文書アップロード
+                {t('upload.title')}
               </span>
             </h1>
             <p className="text-wood-darker text-sm font-mono mt-3 ml-4 tracking-wider">
-              Upload PDF → Process → Index
+              {t('upload.subtitle')}
             </p>
           </div>
         </div>
@@ -165,7 +167,7 @@ export default function UploadPage() {
               htmlFor="file-input"
               className="block text-sm font-bold text-wood-darkest mb-3 border-b-4 border-wood-dark pb-2"
             >
-              📄 文書ファイル（PDF / DOCX / TXT / Excel）
+              {t('upload.file.label')}
             </label>
             <div className="border-4 border-wood-dark bg-white/50 p-4 rounded-lg shadow-wood-sm">
               <input
@@ -189,14 +191,14 @@ export default function UploadPage() {
               htmlFor="title-input"
               className="block text-sm font-bold text-wood-darkest mb-3 border-b-4 border-wood-dark pb-2"
             >
-              📝 文書タイトル（オプション）
+              {t('upload.title.label')}
             </label>
             <input
               id="title-input"
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="ファイル名から自動設定されます"
+              placeholder={t('upload.title.placeholder')}
               className="w-full px-6 py-4 border-4 border-wood-dark bg-wood-light text-wood-darkest placeholder-wood-darker focus:outline-none focus:bg-white focus:border-wood-darker font-medium shadow-wood-sm rounded-lg text-lg"
               disabled={loading}
             />
@@ -211,7 +213,7 @@ export default function UploadPage() {
               }`}
             >
               <div className="font-bold mb-2 text-lg flex items-center gap-2">
-                {message.type === 'success' ? '✅ 成功' : '❌ エラー'}
+                {message.type === 'success' ? t('upload.success') : t('upload.error')}
               </div>
               <div className="text-sm font-medium">{message.text}</div>
             </div>
@@ -225,11 +227,11 @@ export default function UploadPage() {
             >
               {loading ? (
                 <span className="flex items-center gap-2 justify-center">
-                  <span className="inline-block animate-spin-slow">📤</span>
-                  アップロード中...
+                  <span className="inline-block animate-pulse-gentle">📤</span>
+                  {t('upload.button.loading')}
                 </span>
               ) : (
-                '📤 アップロード'
+                t('upload.button')
               )}
             </button>
             <button
@@ -237,7 +239,7 @@ export default function UploadPage() {
               onClick={() => router.push('/ask')}
               className="px-8 py-5 bg-wood-light text-wood-darkest border-4 border-wood-dark font-bold hover:bg-wood-lightest shadow-wood-md transition-all transform hover:scale-105 rounded-lg text-lg"
             >
-              🔍 質問画面へ
+              {t('upload.button.toSearch')}
             </button>
           </div>
         </form>
