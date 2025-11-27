@@ -6,13 +6,20 @@ export default function Home() {
       <div className="max-w-5xl mx-auto">
         <div className="mb-12 pt-8">
           <h1 className="text-5xl font-bold mb-4 text-stone-900 tracking-tight border-b-4 border-stone-800 pb-4 inline-block">
-            Rikkyo School in England<br />Insight AI System
+            Rikkyo England Knowledge Assistant
           </h1>
-          <p className="text-stone-700 mb-2 text-lg mt-6 leading-relaxed">
-            Search and query Rikkyo School documents with AI-powered natural language responses.
+          <p className="text-stone-800 mb-3 text-xl mt-6 leading-relaxed font-semibold">
+            立教英国学院　文書検索AIシステム
           </p>
-          <p className="text-stone-600 text-sm font-mono">
-            RAG (Retrieval-Augmented Generation) System
+          <p className="text-stone-700 mb-2 text-lg mt-4 leading-relaxed">
+            学校内のPDF、規程、会議資料などをまとめて検索し、
+            <br />
+            自然な文章でわかりやすく答えてくれる立教英国のAIアシスタントです。
+          </p>
+          <p className="text-stone-600 text-sm mt-4 leading-relaxed">
+            最新の <span className="font-mono font-bold">RAG（Retrieval-Augmented Generation）</span> 技術を用いて、
+            <br />
+            必要な情報をすぐに見つけられるようサポートします。
           </p>
         </div>
 
@@ -28,7 +35,7 @@ export default function Home() {
               文書検索
             </h2>
             <p className="text-stone-700 leading-relaxed mt-4">
-              質問を入力して、社内文書から関連情報を検索し、AIが回答を生成します。
+              質問を入力して、立教英国学院の文書から関連情報を検索し、AIが回答を生成します。
             </p>
             <div className="mt-4 text-stone-600 text-sm font-mono">
               → 検索を開始
