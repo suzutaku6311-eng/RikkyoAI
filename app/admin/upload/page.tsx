@@ -185,9 +185,13 @@ export default function UploadPage() {
                 className="block w-full text-sm text-wood-darkest file:mr-4 file:py-2 file:px-4 file:border-4 file:border-wood-dark file:bg-wood-light file:text-wood-darkest file:font-bold file:cursor-pointer hover:file:bg-wood-lightest file:shadow-wood-sm file:rounded-lg transition-all"
                 disabled={loading}
               />
-              {file && (
+              {file ? (
                 <p className="mt-3 text-sm text-wood-darkest font-mono bg-wood-light px-4 py-2 border-2 border-wood-dark rounded-lg shadow-wood-sm">
-                  選択中: {file.name} ({(file.size / 1024 / 1024).toFixed(2)} MB)
+                  {t('upload.file.selected')}: {file.name} ({(file.size / 1024 / 1024).toFixed(2)} MB)
+                </p>
+              ) : (
+                <p className="mt-3 text-sm text-wood-darker font-mono bg-wood-light/50 px-4 py-2 border-2 border-wood-dark/50 rounded-lg">
+                  {t('upload.file.notSelected')}
                 </p>
               )}
             </div>

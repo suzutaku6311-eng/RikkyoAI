@@ -82,7 +82,7 @@ const translations = {
     // 文書一覧ページ
     'documents.title': '📚 文書一覧',
     'documents.subtitle': 'Document List → View → Download',
-    'documents.refresh': '🔄 更新',
+    'documents.refresh': '更新',
     'documents.upload': '+ 新規アップロード',
     'documents.table.title': 'タイトル',
     'documents.table.filename': 'ファイル名',
@@ -167,7 +167,7 @@ const translations = {
     // Documents page
     'documents.title': '📚 Documents',
     'documents.subtitle': 'Document List → View → Download',
-    'documents.refresh': '🔄 Refresh',
+    'documents.refresh': 'Refresh',
     'documents.upload': '+ New Upload',
     'documents.table.title': 'Title',
     'documents.table.filename': 'Filename',
