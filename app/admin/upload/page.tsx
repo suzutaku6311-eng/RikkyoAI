@@ -32,9 +32,12 @@ export default function UploadPage() {
       // ファイルサイズのチェック（Vercel無料プランの制限: 4.5MB）
       const maxSize = 4.5 * 1024 * 1024 // 4.5MB
       if (selectedFile.size > maxSize) {
+        const errorMsg = t('language') === 'ja' 
+          ? `ファイルサイズが大きすぎます。最大4.5MBまで対応しています。現在のサイズ: ${(selectedFile.size / 1024 / 1024).toFixed(2)}MB`
+          : `File size is too large. Maximum 4.5MB supported. Current size: ${(selectedFile.size / 1024 / 1024).toFixed(2)}MB`
         setMessage({ 
           type: 'error', 
-          text: `ファイルサイズが大きすぎます。最大4.5MBまで対応しています。現在のサイズ: ${(selectedFile.size / 1024 / 1024).toFixed(2)}MB` 
+          text: errorMsg
         })
         return
       }
