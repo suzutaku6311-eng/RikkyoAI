@@ -163,6 +163,8 @@ const translations = {
     'upload.instructions.step2': 'Enter document title (optional)',
     'upload.instructions.step3': 'Click "Upload" button',
     'upload.instructions.step4': 'Chunking and embedding generation will be performed automatically upon completion',
+    'upload.file.selected': 'Selected',
+    'upload.file.notSelected': 'No file selected',
     
     // Documents page
     'documents.title': '📚 Documents',
