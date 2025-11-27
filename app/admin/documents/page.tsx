@@ -128,13 +128,6 @@ export default function DocumentsPage() {
     }
   }
 
-  const handleViewPdf = (doc: Document) => {
-    if (doc.file_type === 'pdf') {
-      // 新しいタブでPDFを開く（ブラウザの標準PDFビューアーを使用）
-      const pdfUrl = `/api/admin/documents/${doc.id}/view`
-      window.open(pdfUrl, '_blank')
-    }
-  }
 
   return (
     <div className="min-h-screen p-8 bg-wood-pattern relative overflow-hidden">
@@ -276,23 +269,14 @@ export default function DocumentsPage() {
                       <td className="px-6 py-4 whitespace-nowrap text-right">
                         <div className="flex items-center justify-end gap-2">
                           {doc.file_type === 'pdf' && (
-                            <>
-                              <button
-                                onClick={() => handleViewPdf(doc)}
-                                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg shadow-md transition-all transform hover:scale-105"
-                                title="新しいタブでPDFを開く"
-                              >
-                                📄 開く
-                              </button>
-                              <a
-                                href={`/api/admin/documents/${doc.id}/view`}
-                                download={doc.file_name}
-                                className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-bold rounded-lg shadow-md transition-all transform hover:scale-105 inline-block"
-                                title="PDFをダウンロード"
-                              >
-                                ⬇️ ダウンロード
-                              </a>
-                            </>
+                            <a
+                              href={`/api/admin/documents/${doc.id}/view`}
+                              download={doc.file_name}
+                              className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-bold rounded-lg shadow-md transition-all transform hover:scale-105 inline-block"
+                              title="PDFをダウンロード"
+                            >
+                              ⬇️ ダウンロード
+                            </a>
                           )}
                           <button
                             onClick={() => handleDelete(doc.id)}
