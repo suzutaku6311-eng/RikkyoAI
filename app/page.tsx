@@ -21,7 +21,7 @@ export default function Home() {
             <div className="absolute -left-4 top-0 bottom-0 w-1 bg-wood-dark animate-grow"></div>
             <h1 className="text-5xl font-bold mb-4 text-wood-dark tracking-tight relative">
               <span className="relative z-10 bg-wood-pattern px-4 py-2 rounded-lg border-4 border-wood-dark shadow-wood-lg inline-block transform hover:scale-105 transition-transform">
-                Rikkyo England Knowledge Assistant
+                Rikkyo England in England Knowledge Assistant System
               </span>
             </h1>
             <p className="text-wood-darkest mb-3 text-xl mt-6 leading-relaxed font-semibold ml-4">

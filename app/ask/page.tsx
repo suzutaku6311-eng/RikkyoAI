@@ -156,7 +156,7 @@ export default function AskPage() {
               <div className="absolute -left-4 top-0 bottom-0 w-1 bg-wood-dark animate-grow"></div>
             <h1 className="text-5xl font-bold mb-3 text-wood-dark tracking-tight relative">
               <span className="relative z-10 bg-wood-pattern px-4 py-2 rounded-lg border-4 border-wood-dark shadow-wood-lg inline-block transform hover:scale-105 transition-transform">
-                🔍 Rikkyo Insight AI
+                🔍 Rikkyo School in England Insight AI
               </span>
             </h1>
             <p className="text-wood-darker text-sm font-mono mt-3 ml-4 tracking-wider">

@@ -24,7 +24,7 @@ export default function RootLayout({
                   className="flex items-center px-4 py-2 text-xl font-bold text-wood-light hover:text-wood-lightest tracking-tight transition-colors"
                 >
                   <span className="text-2xl mr-2">🌳</span>
-                  <span className="border-b-2 border-wood-light pb-1">Rikkyo Insight AI</span>
+                  <span className="border-b-2 border-wood-light pb-1">Rikkyo School in England Insight AI</span>
                 </Link>
               </div>
               <div className="flex items-center space-x-3">
