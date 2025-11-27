@@ -262,21 +262,6 @@ export default function UploadPage() {
             </button>
           </div>
         </form>
-
-        <div className="mt-10 bg-wood-light p-8 border-4 border-wood-dark shadow-wood-md rounded-lg animate-fadeIn">
-          <div className="bg-wood-dark text-wood-light px-6 py-4 border-b-4 border-wood-darker rounded-t-lg shadow-wood-md -m-8 mb-4">
-            <h2 className="text-xl font-bold flex items-center gap-2">
-              <span>📋</span>
-              アップロード手順
-            </h2>
-          </div>
-          <ol className="list-decimal list-inside space-y-3 text-sm text-wood-darkest leading-relaxed ml-4">
-            <li>PDFファイルを選択してください</li>
-            <li>文書タイトルを入力（オプション）</li>
-            <li>「アップロード」ボタンをクリック</li>
-            <li>処理が完了すると、自動的にチャンク分割とEmbedding生成が行われます</li>
-          </ol>
-        </div>
       </div>
     </div>
   )
