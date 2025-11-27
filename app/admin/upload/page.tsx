@@ -76,11 +76,15 @@ export default function UploadPage() {
 
       // ステータスコードに応じたエラーハンドリング
       if (response.status === 413) {
-        throw new Error('ファイルサイズが大きすぎます。Vercel無料プランの制限により、4.5MB以下のファイルのみアップロードできます。')
+        throw new Error(t('language') === 'ja' 
+          ? 'ファイルサイズが大きすぎます。Vercel無料プランの制限により、4.5MB以下のファイルのみアップロードできます。'
+          : 'File size is too large. Due to Vercel free plan limitations, only files up to 4.5MB can be uploaded.')
       }
 
       if (response.status === 404) {
-        throw new Error('APIエンドポイントが見つかりません。ページをリロードして再度お試しください。')
+        throw new Error(t('language') === 'ja' 
+          ? 'APIエンドポイントが見つかりません。ページをリロードして再度お試しください。'
+          : 'API endpoint not found. Please reload the page and try again.')
       }
 
       // レスポンスのContent-Typeを確認
@@ -128,7 +132,7 @@ export default function UploadPage() {
       console.error('アップロードエラー:', err)
       setMessage({
         type: 'error',
-        text: err instanceof Error ? err.message : '予期しないエラーが発生しました',
+        text: err instanceof Error ? err.message : (t('language') === 'ja' ? '予期しないエラーが発生しました' : 'An unexpected error occurred'),
       })
     } finally {
       setLoading(false)
