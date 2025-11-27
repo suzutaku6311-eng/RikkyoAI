@@ -40,6 +40,12 @@ export default function NavBar() {
             >
               {t('nav.upload')}
             </Link>
+            <Link
+              href="/admin/google-sheets"
+              className="px-4 py-2 text-sm font-bold text-wood-light hover:text-wood-lightest hover:bg-wood-darker border-2 border-wood-darker shadow-wood-sm transition-all transform hover:scale-105 rounded-lg"
+            >
+              📊 {language === 'ja' ? 'Google Sheets' : 'Google Sheets'}
+            </Link>
           </div>
         </div>
       </div>
