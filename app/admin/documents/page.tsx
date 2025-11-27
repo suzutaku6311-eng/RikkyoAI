@@ -204,7 +204,7 @@ export default function DocumentsPage() {
               disabled={loading}
               className="px-6 py-3 bg-wood-light text-wood-dark border-4 border-wood-dark font-bold hover:bg-wood-lighter disabled:bg-wood-darkest disabled:cursor-not-allowed shadow-wood-md transition-all transform hover:scale-105 hover:shadow-wood-lg disabled:transform-none rounded-lg"
             >
-              <span className="inline-block animate-spin-slow">🔄</span> 更新
+              <span className="inline-block">🔄</span> 更新
             </button>
             <Link
               href="/admin/upload"
