@@ -171,10 +171,99 @@ export async function searchSimilarChunks(
     
     if (!chunks || chunks.length === 0) {
       console.log('[RAG] RPC関数からチャンクが返されませんでした（閾値が高すぎる可能性があります）')
-      // 閾値を下げて再試行するか、フォールバック処理に移行
+      // フォールバック処理に移行
       console.log('[RAG] フォールバック処理に移行します')
-      // フォールバック処理に移行するため、エラーを発生させてフォールバック処理を実行
-      throw new Error('RPC関数からチャンクが返されませんでした')
+      
+      // フォールバック処理: すべてのチャンクを取得してから類似度計算
+      const { data: chunksData, error: chunksError } = await supabase
+        .from('chunks')
+        .select('id, content, document_id, chunk_index, embedding')
+
+      if (chunksError) {
+        console.error('[RAG] フォールバック: チャンク取得エラー:', chunksError)
+        throw new Error(`ベクトル検索エラー: ${chunksError.message}`)
+      }
+
+      if (!chunksData || chunksData.length === 0) {
+        console.log('[RAG] フォールバック: チャンクが見つかりませんでした')
+        return []
+      }
+
+      console.log(`[RAG] フォールバック: 取得したチャンク数: ${chunksData.length}`)
+
+      // クライアント側で類似度計算
+      let validChunksCount = 0
+      let invalidChunksCount = 0
+      let noEmbeddingCount = 0
+      let wrongDimensionCount = 0
+      
+      const chunksWithSimilarity = chunksData
+        .map((chunk) => {
+          if (!chunk.embedding) {
+            noEmbeddingCount++
+            return null
+          }
+
+          let embeddingArray: number[] = []
+          
+          if (Array.isArray(chunk.embedding)) {
+            embeddingArray = chunk.embedding
+          } else if (typeof chunk.embedding === 'string') {
+            try {
+              embeddingArray = JSON.parse(chunk.embedding)
+            } catch (e) {
+              invalidChunksCount++
+              return null
+            }
+          } else {
+            invalidChunksCount++
+            return null
+          }
+
+          if (!Array.isArray(embeddingArray) || embeddingArray.length !== questionEmbedding.length) {
+            wrongDimensionCount++
+            return null
+          }
+
+          validChunksCount++
+          const similarity = cosineSimilarity(questionEmbedding, embeddingArray)
+          return { ...chunk, similarity, embedding: embeddingArray }
+        })
+        .filter((chunk): chunk is NonNullable<typeof chunk> => chunk !== null)
+        .sort((a, b) => (b.similarity || 0) - (a.similarity || 0))
+        .slice(0, limit)
+      
+      console.log(`[RAG] フォールバック: 有効なチャンク: ${validChunksCount}, 無効なチャンク: ${invalidChunksCount}`)
+      console.log(`[RAG] フォールバック: 類似度計算後のチャンク数: ${chunksWithSimilarity.length}`)
+      
+      if (chunksWithSimilarity.length > 0) {
+        console.log(`[RAG] フォールバック: 最高類似度: ${chunksWithSimilarity[0].similarity?.toFixed(4)}`)
+      }
+
+      // 文書情報を取得
+      const documentIds = [
+        ...new Set(chunksWithSimilarity.map((c) => c.document_id)),
+      ]
+      const { data: documents } = await supabase
+        .from('documents')
+        .select('id, title')
+        .in('id', documentIds)
+
+      const documentMap = new Map(
+        documents?.map((doc) => [doc.id, doc.title]) || []
+      )
+
+      const result = chunksWithSimilarity.map((chunk) => ({
+        id: chunk.id,
+        content: chunk.content,
+        documentId: chunk.document_id,
+        documentTitle: documentMap.get(chunk.document_id),
+        chunkIndex: chunk.chunk_index,
+        similarity: chunk.similarity,
+      }))
+      
+      console.log(`[RAG] フォールバック処理の結果を返します: ${result.length}件`)
+      return result
     }
 
     const documentIds = [...new Set(chunks.map((c: any) => c.document_id))]
