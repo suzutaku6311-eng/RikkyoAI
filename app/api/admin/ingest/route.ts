@@ -247,7 +247,7 @@ export async function POST(request: NextRequest) {
       .insert({
         title: documentTitle,
         file_name: file.name,
-        file_type: fileTypeDetected === 'xls' ? 'xlsx' : fileTypeDetected // xlsもxlsxとして保存,
+        file_type: fileTypeDetected === 'xls' ? 'xlsx' : fileTypeDetected, // xlsもxlsxとして保存
         uploaded_at: new Date().toISOString(),
       })
       .select()
