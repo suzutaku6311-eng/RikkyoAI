@@ -68,6 +68,47 @@ export default function DocumentsPage() {
     }
   }
 
+  const handleRegenerate = async (documentId: string) => {
+    if (!confirm('この文書のEmbeddingを再生成しますか？\n（処理には時間がかかる場合があります）')) {
+      return
+    }
+
+    setRegenerating(documentId)
+    setMessage(null)
+    setError(null)
+
+    try {
+      console.log('[Documents] Embedding再生成開始:', documentId)
+      const response = await fetch(`/api/admin/documents/${documentId}/regenerate`, {
+        method: 'POST',
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || '再生成に失敗しました')
+      }
+
+      setMessage({
+        type: 'success',
+        text: data.message || 'Embeddingの再生成が完了しました',
+      })
+
+      // 文書一覧を再読み込み
+      fetchDocuments()
+    } catch (err) {
+      console.error('再生成エラー:', err)
+      const errorMessage = err instanceof Error ? err.message : '予期しないエラーが発生しました'
+      setError(errorMessage)
+      setMessage({
+        type: 'error',
+        text: errorMessage,
+      })
+    } finally {
+      setRegenerating(null)
+    }
+  }
+
   const handleDelete = async (documentId: string) => {
     if (!confirm('この文書を削除しますか？')) {
       return
