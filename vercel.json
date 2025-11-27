@@ -2,8 +2,20 @@
   "functions": {
     "app/api/admin/ingest/route.ts": {
       "maxDuration": 60
+    },
+    "app/api/admin/sync-sheets/route.ts": {
+      "maxDuration": 300
+    },
+    "app/api/admin/google-sheets/[id]/sync/route.ts": {
+      "maxDuration": 300
     }
-  }
+  },
+  "crons": [
+    {
+      "path": "/api/admin/sync-sheets",
+      "schedule": "0 * * * *"
+    }
+  ]
 }
 
 
