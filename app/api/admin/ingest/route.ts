@@ -5,6 +5,7 @@ import * as XLSX from 'xlsx'
 import { supabase, checkSupabaseEnv } from '@/lib/supabase'
 import { checkOpenAIEnv } from '@/lib/openai'
 import { splitIntoChunks, generateEmbeddingsForChunks } from '@/lib/embeddings'
+import { requireAdmin } from '@/lib/auth-helpers'
 
 // pdf-parseはNode.jsのBufferを使うため、Node.js Runtimeを指定
 export const runtime = 'nodejs'
@@ -24,6 +25,15 @@ export async function POST(request: NextRequest) {
   console.log('[Ingest] 処理開始')
   
   try {
+    // 認証チェック（管理者のみ）
+    const { error: authError, user } = await requireAdmin(request)
+    if (authError) {
+      return NextResponse.json(
+        { success: false, error: authError.message },
+        { status: authError.status }
+      )
+    }
+
     // 環境変数のチェック
     const supabaseCheck = checkSupabaseEnv()
     if (!supabaseCheck.isValid || !supabase) {
@@ -249,6 +259,7 @@ export async function POST(request: NextRequest) {
         file_name: file.name,
         file_type: fileTypeDetected === 'xls' ? 'xlsx' : fileTypeDetected, // xlsもxlsxとして保存
         uploaded_at: new Date().toISOString(),
+        created_by: user?.id, // 認証されたユーザーIDを設定
       })
       .select()
       .single()

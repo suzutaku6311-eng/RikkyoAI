@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { searchSimilarChunks, generateAnswer } from '@/lib/rag'
 import { supabase, checkSupabaseEnv } from '@/lib/supabase'
 import { checkOpenAIEnv } from '@/lib/openai'
+import { requireAuth } from '@/lib/auth-helpers'
 import type { ChunkSummary } from '@/lib/rag'
 
 export const runtime = 'nodejs'
@@ -13,6 +14,15 @@ export const runtime = 'nodejs'
  */
 export async function POST(request: NextRequest) {
   try {
+    // 認証チェック（認証ユーザー全員）
+    const { error: authError, user } = await requireAuth(request)
+    if (authError) {
+      return NextResponse.json(
+        { error: authError.message },
+        { status: authError.status }
+      )
+    }
+
     // 環境変数のチェック
     const supabaseCheck = checkSupabaseEnv()
     if (!supabaseCheck.isValid || !supabase) {
@@ -103,6 +113,7 @@ export async function POST(request: NextRequest) {
         .insert({
           question: question.trim(),
           answer: answer,
+          user_id: user?.id, // 認証されたユーザーIDを設定
           chunks_used: chunks.map(c => ({
             id: c.id,
             documentId: c.documentId,

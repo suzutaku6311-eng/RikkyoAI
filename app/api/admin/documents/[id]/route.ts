@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabase, checkSupabaseEnv } from '@/lib/supabase'
+import { requireAdmin } from '@/lib/auth-helpers'
 
 export const runtime = 'nodejs'
 
@@ -12,6 +13,15 @@ export async function DELETE(
 ) {
   try {
     console.log('[Delete API] 削除処理開始')
+    
+    // 認証チェック（管理者のみ）
+    const { error: authError } = await requireAdmin(request)
+    if (authError) {
+      return NextResponse.json(
+        { error: authError.message },
+        { status: authError.status }
+      )
+    }
     
     // 環境変数のチェック
     const supabaseCheck = checkSupabaseEnv()

@@ -1,5 +1,6 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { supabase, checkSupabaseEnv } from '@/lib/supabase'
+import { requireAdmin } from '@/lib/auth-helpers'
 
 export const runtime = 'nodejs'
 // キャッシュを無効化して常に最新データを返す
@@ -9,9 +10,18 @@ export const revalidate = 0
 /**
  * 文書一覧取得API
  */
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
     console.log('[Documents API] 文書一覧取得開始')
+    
+    // 認証チェック（管理者のみ）
+    const { error: authError } = await requireAdmin(request)
+    if (authError) {
+      return NextResponse.json(
+        { error: authError.message },
+        { status: authError.status }
+      )
+    }
     
     // 環境変数のチェック
     const supabaseCheck = checkSupabaseEnv()

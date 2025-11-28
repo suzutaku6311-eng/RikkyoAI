@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useLanguage } from '@/contexts/LanguageContext'
+import { useAuth } from '@/contexts/AuthContext'
+import { useRouter } from 'next/navigation'
 
 type Document = {
   id: string
@@ -16,11 +18,27 @@ type Document = {
 
 export default function DocumentsPage() {
   const { t } = useLanguage()
+  const { user, loading: authLoading } = useAuth()
+  const router = useRouter()
   const [documents, setDocuments] = useState<Document[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
   const [regenerating, setRegenerating] = useState<string | null>(null)
+
+  // 認証チェック
+  useEffect(() => {
+    if (!authLoading) {
+      if (!user) {
+        router.push('/login?redirect=/admin/documents')
+        return
+      }
+      if (user.role !== 'admin' && user.role !== 'super_admin') {
+        setError('管理者権限が必要です')
+        return
+      }
+    }
+  }, [user, authLoading, router])
 
   useEffect(() => {
     fetchDocuments()

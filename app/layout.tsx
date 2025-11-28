@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import './globals.css'
 import { LanguageProvider } from '@/contexts/LanguageContext'
+import { AuthProvider } from '@/contexts/AuthContext'
 import NavBar from '@/components/NavBar'
 
 export const metadata: Metadata = {
@@ -27,8 +28,10 @@ export default function RootLayout({
     <html lang="ja">
       <body>
         <LanguageProvider>
-          <NavBar />
-          {children}
+          <AuthProvider>
+            <NavBar />
+            {children}
+          </AuthProvider>
         </LanguageProvider>
       </body>
     </html>

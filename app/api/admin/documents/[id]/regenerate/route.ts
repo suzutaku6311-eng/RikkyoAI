@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { supabase, checkSupabaseEnv } from '@/lib/supabase'
 import { checkOpenAIEnv } from '@/lib/openai'
 import { splitIntoChunks, generateEmbeddingsForChunks } from '@/lib/embeddings'
+import { requireAdmin } from '@/lib/auth-helpers'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -19,6 +20,15 @@ export async function POST(
   console.log(`[Regenerate] 処理開始: documentId=${params.id}`)
   
   try {
+    // 認証チェック（管理者のみ）
+    const { error: authError } = await requireAdmin(request)
+    if (authError) {
+      return NextResponse.json(
+        { success: false, error: authError.message },
+        { status: authError.status }
+      )
+    }
+
     const documentId = params.id
 
     if (!documentId) {

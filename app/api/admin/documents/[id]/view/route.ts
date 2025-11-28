@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabase, checkSupabaseEnv } from '@/lib/supabase'
+import { requireAdmin } from '@/lib/auth-helpers'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -13,6 +14,15 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
+    // 認証チェック（管理者のみ、ダウンロード権限）
+    const { error: authError } = await requireAdmin(request)
+    if (authError) {
+      return NextResponse.json(
+        { error: authError.message },
+        { status: authError.status }
+      )
+    }
+
     const documentId = params.id
 
     if (!documentId) {

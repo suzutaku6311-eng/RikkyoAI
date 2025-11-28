@@ -1,16 +1,32 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useLanguage } from '@/contexts/LanguageContext'
+import { useAuth } from '@/contexts/AuthContext'
 
 export default function UploadPage() {
   const { t, language } = useLanguage()
+  const { user, loading: authLoading } = useAuth()
+  const router = useRouter()
   const [file, setFile] = useState<File | null>(null)
   const [title, setTitle] = useState('')
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
-  const router = useRouter()
+
+  // 認証チェック
+  useEffect(() => {
+    if (!authLoading) {
+      if (!user) {
+        router.push('/login?redirect=/admin/upload')
+        return
+      }
+      if (user.role !== 'admin' && user.role !== 'super_admin') {
+        setMessage({ type: 'error', text: language === 'ja' ? '管理者権限が必要です' : 'Admin privileges required' })
+        return
+      }
+    }
+  }, [user, authLoading, router, language])
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0]

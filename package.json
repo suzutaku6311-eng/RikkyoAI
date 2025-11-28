@@ -13,6 +13,7 @@
     "test:search": "tsx scripts/test-search.ts"
   },
   "dependencies": {
+    "@supabase/ssr": "^0.8.0",
     "@supabase/supabase-js": "^2.39.0",
     "googleapis": "^166.0.0",
     "mammoth": "^1.11.0",

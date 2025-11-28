@@ -101,6 +101,18 @@ const translations = {
     'documents.loading': '読み込み中...',
     'documents.empty': '文書がありません',
     'documents.empty.upload': '文書をアップロードしてください',
+    
+    // 認証
+    'auth.login.title': 'ログイン',
+    'auth.login.subtitle': 'Rikkyo School in England Insight AI System',
+    'auth.login.email': 'メールアドレス',
+    'auth.login.emailPlaceholder': 'your.email@example.com',
+    'auth.login.password': 'パスワード',
+    'auth.login.passwordPlaceholder': 'パスワードを入力',
+    'auth.login.submit': 'ログイン',
+    'auth.login.loading': 'ログイン中...',
+    'auth.logout': 'ログアウト',
+    'auth.user': 'ユーザー',
   },
   en: {
     // Common
@@ -189,6 +201,18 @@ const translations = {
     'documents.loading': 'Loading...',
     'documents.empty': 'No documents',
     'documents.empty.upload': 'Please upload documents',
+    
+    // Authentication
+    'auth.login.title': 'Login',
+    'auth.login.subtitle': 'Rikkyo School in England Insight AI System',
+    'auth.login.email': 'Email Address',
+    'auth.login.emailPlaceholder': 'your.email@example.com',
+    'auth.login.password': 'Password',
+    'auth.login.passwordPlaceholder': 'Enter password',
+    'auth.login.submit': 'Login',
+    'auth.login.loading': 'Logging in...',
+    'auth.logout': 'Logout',
+    'auth.user': 'User',
   },
 }
 

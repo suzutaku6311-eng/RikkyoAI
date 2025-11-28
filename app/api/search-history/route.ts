@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabase, checkSupabaseEnv } from '@/lib/supabase'
+import { requireAuth } from '@/lib/auth-helpers'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -10,6 +11,15 @@ export const dynamic = 'force-dynamic'
  */
 export async function GET(request: NextRequest) {
   try {
+    // 認証チェック（認証ユーザー全員）
+    const { error: authError, user } = await requireAuth(request)
+    if (authError) {
+      return NextResponse.json(
+        { error: authError.message },
+        { status: authError.status }
+      )
+    }
+
     const supabaseCheck = checkSupabaseEnv()
     if (!supabaseCheck.isValid || !supabase) {
       return NextResponse.json(
@@ -23,9 +33,11 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url)
     const limit = parseInt(searchParams.get('limit') || '20')
 
+    // 自分の検索履歴のみ取得
     const { data: history, error } = await supabaseClient
       .from('search_history')
       .select('*')
+      .eq('user_id', user!.id)
       .order('created_at', { ascending: false })
       .limit(limit)
 
@@ -59,6 +71,15 @@ export async function GET(request: NextRequest) {
  */
 export async function DELETE(request: NextRequest) {
   try {
+    // 認証チェック（認証ユーザー全員）
+    const { error: authError, user } = await requireAuth(request)
+    if (authError) {
+      return NextResponse.json(
+        { error: authError.message },
+        { status: authError.status }
+      )
+    }
+
     const supabaseCheck = checkSupabaseEnv()
     if (!supabaseCheck.isValid || !supabase) {
       return NextResponse.json(
@@ -79,10 +100,12 @@ export async function DELETE(request: NextRequest) {
       )
     }
 
+    // 自分の検索履歴のみ削除可能
     const { error } = await supabaseClient
       .from('search_history')
       .delete()
       .eq('id', id)
+      .eq('user_id', user!.id)
 
     if (error) {
       console.error('検索履歴削除エラー:', error)
