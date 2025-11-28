@@ -10,12 +10,7 @@
       "maxDuration": 300
     }
   },
-  "crons": [
-    {
-      "path": "/api/admin/sync-sheets",
-      "schedule": "0 * * * *"
-    }
-  ]
+  "crons": []
 }
 
 
