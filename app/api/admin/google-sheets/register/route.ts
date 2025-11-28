@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getSupabaseServerClient } from '@/lib/supabase-server'
 import { extractSpreadsheetId, getSpreadsheetMetadata, getSheetData, convertSheetRowsToText } from '@/lib/google-sheets'
-import { generateEmbeddingsForChunks, splitTextIntoChunks } from '@/lib/embeddings'
+import { generateEmbeddingsForChunks, splitIntoChunks } from '@/lib/embeddings'
 import { convertRowsToObjects } from '@/lib/sheet-sync'
 
 export async function POST(request: NextRequest) {
@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
     const text = convertSheetRowsToText(rows)
     
     // チャンク分割
-    const chunks = splitTextIntoChunks(text)
+    const chunks = splitIntoChunks(text)
     
     // Embedding生成
     console.log(`[Google Sheets] ${chunks.length}個のチャンクに対してEmbedding生成を開始`)

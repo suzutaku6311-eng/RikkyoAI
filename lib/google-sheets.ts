@@ -76,7 +76,7 @@ export async function getSpreadsheetMetadata(spreadsheetId: string) {
 
     return {
       title: response.data.properties?.title || '',
-      modifiedTime: response.data.properties?.modifiedTime || null,
+      modifiedTime: null, // Google Sheets APIでは変更時刻を直接取得できないためnull
       sheets: response.data.sheets?.map(sheet => ({
         title: sheet.properties?.title || '',
         sheetId: sheet.properties?.sheetId || 0,
