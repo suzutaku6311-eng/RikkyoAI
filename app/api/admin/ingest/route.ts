@@ -96,7 +96,7 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       )
     }
-    
+
     console.log(`[Ingest] ファイルタイプ: ${fileTypeDetected}`)
     
     // ファイルからテキスト抽出
@@ -106,14 +106,14 @@ export async function POST(request: NextRequest) {
     
     if (fileTypeDetected === 'pdf') {
       console.log('[Ingest] PDFからテキスト抽出中...')
-      const pdfData = await pdfParse(buffer, {
-        max: 0, // 全ページを処理
-      })
+    const pdfData = await pdfParse(buffer, {
+      max: 0, // 全ページを処理
+    })
       extractedText = pdfData.text
-      
-      // 文字化けの修正処理
-      extractedText = extractedText
-        .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '')
+    
+    // 文字化けの修正処理
+    extractedText = extractedText
+      .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '')
         .replace(/\s+/g, ' ')
         .trim()
     } else if (fileTypeDetected === 'docx') {
@@ -182,8 +182,8 @@ export async function POST(request: NextRequest) {
       
       // テキストの正規化
       extractedText = extractedText
-        .replace(/\s+/g, ' ')
-        .trim()
+      .replace(/\s+/g, ' ')
+      .trim()
       
       console.log(`[Ingest] Excelから ${workbook.SheetNames.length}個のシートを処理しました`)
     }
@@ -219,8 +219,8 @@ export async function POST(request: NextRequest) {
     let embeddings: number[][]
     try {
       embeddings = await generateEmbeddingsForChunks(chunks)
-      const embeddingTime = Date.now() - embeddingStartTime
-      console.log(`[Ingest] Embedding生成完了: ${embeddingTime}ms`)
+    const embeddingTime = Date.now() - embeddingStartTime
+    console.log(`[Ingest] Embedding生成完了: ${embeddingTime}ms`)
     } catch (error: any) {
       const embeddingTime = Date.now() - embeddingStartTime
       console.error(`[Ingest] Embedding生成エラー (${embeddingTime}ms):`, error)

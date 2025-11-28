@@ -59,3 +59,5 @@ CREATE INDEX ON chunks USING ivfflat (embedding vector_cosine_ops);
 
 
 
+
+
