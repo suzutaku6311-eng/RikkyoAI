@@ -6,6 +6,7 @@ import type { DocumentChunk } from '@/types/documents'
  * 文の途中で切れないように、可能な限り文の境界で分割する
  */
 export function splitIntoChunks(text: string, minChunkSize = 300, maxChunkSize = 500): string[] {
+  // Google Sheets連携はペンディング中のため、この関数は使用可能
   const chunks: string[] = []
   
   // 改行や句点で分割してから結合
@@ -54,6 +55,12 @@ export function splitIntoChunks(text: string, minChunkSize = 300, maxChunkSize =
   
   return chunks.filter(chunk => chunk.length > 0)
 }
+
+/**
+ * @deprecated Google Sheets連携はペンディング中です。代わりに splitIntoChunks を使用してください。
+ * 後方互換性のため、splitIntoChunks のエイリアスとして提供されています。
+ */
+export const splitTextIntoChunks = splitIntoChunks
 
 /**
  * テキストからEmbeddingを生成する
