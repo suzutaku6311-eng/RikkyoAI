@@ -73,15 +73,40 @@ export async function middleware(request: NextRequest) {
   // 管理者パスにアクセスしているが、管理者権限がない場合
   if (isAdminPath && user) {
     // ユーザープロフィールを取得して管理者権限を確認
-    const { data: profile } = await supabase
+    const { data: profile, error: profileError } = await supabase
       .from('user_profiles')
       .select('role')
       .eq('id', user.id)
       .single()
 
+    if (profileError) {
+      console.error('[Middleware] プロフィール取得エラー:', profileError)
+      console.error('[Middleware] ユーザーID:', user.id)
+      console.error('[Middleware] エラーコード:', profileError.code)
+      // プロフィールが取得できない場合は、ログインページにリダイレクト
+      const redirectUrl = new URL('/login', request.url)
+      redirectUrl.searchParams.set('redirect', pathname)
+      redirectUrl.searchParams.set('error', 'profile_not_found')
+      return NextResponse.redirect(redirectUrl)
+    }
+
+    console.log('[Middleware] 管理者権限チェック:', {
+      userId: user.id,
+      email: user.email,
+      role: profile?.role,
+      isAdmin: profile?.role === 'admin' || profile?.role === 'super_admin',
+      pathname,
+    })
+
     if (!profile || (profile.role !== 'admin' && profile.role !== 'super_admin')) {
+      console.warn('[Middleware] 管理者権限がありません。ホームにリダイレクトします。', {
+        userId: user.id,
+        role: profile?.role,
+      })
       return NextResponse.redirect(new URL('/', request.url))
     }
+
+    console.log('[Middleware] 管理者権限を確認しました。アクセスを許可します。')
   }
 
   // 認証が必要なパス（検索履歴など）にアクセスしているが、認証されていない場合

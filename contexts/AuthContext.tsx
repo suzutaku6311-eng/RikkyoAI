@@ -31,11 +31,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const refreshUser = async () => {
     try {
-      const response = await fetch('/api/auth/me')
+      const response = await fetch('/api/auth/me', {
+        cache: 'no-store',
+        headers: {
+          'Cache-Control': 'no-cache',
+        },
+      })
       if (response.ok) {
         const data = await response.json()
+        console.log('[Auth] ユーザー情報を取得:', data.user)
         setUser(data.user)
       } else {
+        console.warn('[Auth] ユーザー情報取得失敗:', response.status, response.statusText)
         setUser(null)
       }
     } catch (error) {
@@ -66,7 +73,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return { success: false, error: data.error || 'ログインに失敗しました' }
       }
 
+      console.log('[Auth] ログイン成功、ユーザー情報を設定:', data.user)
       setUser(data.user)
+
+      // ログイン後、確実に最新のユーザー情報を取得
+      await refreshUser()
+
       router.push('/')
       router.refresh()
 
