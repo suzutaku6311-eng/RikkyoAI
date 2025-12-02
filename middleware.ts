@@ -37,13 +37,19 @@ export async function middleware(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser()
 
-  // 保護が必要なパス
-  const protectedPaths = ['/admin', '/api/admin', '/ask', '/api/ask', '/api/search-history']
+  // 保護が必要なパス（管理者のみ）
+  const adminPaths = ['/admin', '/api/admin']
+  // 認証が必要なパス（一般ユーザーもアクセス可能）
+  const authRequiredPaths = ['/api/search-history']
+  // 公開パス（認証不要）
+  const publicPaths = ['/ask', '/api/ask']
   const authPaths = ['/login']
   const publicApiPaths = ['/api/auth/login', '/api/auth/logout', '/api/auth/me', '/api/health']
 
   const pathname = request.nextUrl.pathname
-  const isProtectedPath = protectedPaths.some((path) => pathname.startsWith(path))
+  const isAdminPath = adminPaths.some((path) => pathname.startsWith(path))
+  const isAuthRequiredPath = authRequiredPaths.some((path) => pathname.startsWith(path))
+  const isPublicPath = publicPaths.some((path) => pathname.startsWith(path))
   const isAuthPath = authPaths.some((path) => pathname.startsWith(path))
   const isPublicApiPath = publicApiPaths.some((path) => pathname.startsWith(path))
 
@@ -52,11 +58,38 @@ export async function middleware(request: NextRequest) {
     return response
   }
 
-  // 保護されたパスにアクセスしているが、認証されていない場合
-  if (isProtectedPath && !user) {
+  // 公開パス（/ask, /api/ask）は認証不要
+  if (isPublicPath) {
+    return response
+  }
+
+  // 管理者パスにアクセスしているが、認証されていない場合
+  if (isAdminPath && !user) {
     const redirectUrl = new URL('/login', request.url)
     redirectUrl.searchParams.set('redirect', pathname)
     return NextResponse.redirect(redirectUrl)
+  }
+
+  // 管理者パスにアクセスしているが、管理者権限がない場合
+  if (isAdminPath && user) {
+    // ユーザープロフィールを取得して管理者権限を確認
+    const { data: profile } = await supabase
+      .from('user_profiles')
+      .select('role')
+      .eq('id', user.id)
+      .single()
+
+    if (!profile || (profile.role !== 'admin' && profile.role !== 'super_admin')) {
+      return NextResponse.redirect(new URL('/', request.url))
+    }
+  }
+
+  // 認証が必要なパス（検索履歴など）にアクセスしているが、認証されていない場合
+  if (isAuthRequiredPath && !user) {
+    return NextResponse.json(
+      { error: '認証が必要です' },
+      { status: 401 }
+    )
   }
 
   // ログインページにアクセスしているが、既に認証されている場合

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { searchSimilarChunks, generateAnswer } from '@/lib/rag'
 import { supabase, checkSupabaseEnv } from '@/lib/supabase'
 import { checkOpenAIEnv } from '@/lib/openai'
-import { requireAuth } from '@/lib/auth-helpers'
+import { getAuthenticatedUser } from '@/lib/auth-helpers'
 import type { ChunkSummary } from '@/lib/rag'
 
 export const runtime = 'nodejs'
@@ -14,14 +14,9 @@ export const runtime = 'nodejs'
  */
 export async function POST(request: NextRequest) {
   try {
-    // 認証チェック（認証ユーザー全員）
-    const { error: authError, user } = await requireAuth(request)
-    if (authError) {
-      return NextResponse.json(
-        { error: authError.message },
-        { status: authError.status }
-      )
-    }
+    // 認証チェック（オプション - 認証されていない場合も検索可能）
+    // 認証されている場合は検索履歴を保存
+    const user = await getAuthenticatedUser()
 
     // 環境変数のチェック
     const supabaseCheck = checkSupabaseEnv()
@@ -106,25 +101,29 @@ export async function POST(request: NextRequest) {
       similarity: chunk.similarity,
     }))
 
-    // 検索履歴を保存（エラーが発生しても処理は続行）
-    try {
-      await supabaseClient
-        .from('search_history')
-        .insert({
-          question: question.trim(),
-          answer: answer,
-          user_id: user?.id, // 認証されたユーザーIDを設定
-          chunks_used: chunks.map(c => ({
-            id: c.id,
-            documentId: c.documentId,
-            documentTitle: c.documentTitle,
-            similarity: c.similarity,
-          })),
-        })
-      console.log('検索履歴を保存しました')
-    } catch (historyError) {
-      // 履歴保存のエラーは無視（テーブルが存在しない場合など）
-      console.warn('検索履歴の保存に失敗しました（続行）:', historyError)
+    // 検索履歴を保存（認証されている場合のみ、エラーが発生しても処理は続行）
+    if (user) {
+      try {
+        await supabaseClient
+          .from('search_history')
+          .insert({
+            question: question.trim(),
+            answer: answer,
+            user_id: user.id, // 認証されたユーザーIDを設定
+            chunks_used: chunks.map(c => ({
+              id: c.id,
+              documentId: c.documentId,
+              documentTitle: c.documentTitle,
+              similarity: c.similarity,
+            })),
+          })
+        console.log('検索履歴を保存しました')
+      } catch (historyError) {
+        // 履歴保存のエラーは無視（テーブルが存在しない場合など）
+        console.warn('検索履歴の保存に失敗しました（続行）:', historyError)
+      }
+    } else {
+      console.log('認証されていないため、検索履歴を保存しません')
     }
 
     return NextResponse.json({

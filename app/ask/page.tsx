@@ -41,14 +41,7 @@ export default function AskPage() {
   const [sourcesPage, setSourcesPage] = useState(1)
   const [sourcesPerPage, setSourcesPerPage] = useState(5)
 
-  // 認証チェック
-  useEffect(() => {
-    if (!authLoading && !user) {
-      console.log('[Ask] ユーザーが認証されていません。ログインページにリダイレクトします。')
-      router.push('/login?redirect=/ask')
-    }
-  }, [user, authLoading, router])
-
+  // 検索履歴を読み込む（認証されている場合のみ）
   const loadHistory = useCallback(async () => {
     if (!user) {
       console.log('[Ask] ユーザーが認証されていないため、履歴を読み込みません。')
@@ -80,6 +73,8 @@ export default function AskPage() {
       loadHistory()
     }
   }, [user, authLoading, loadHistory])
+
+  // 認証されていない場合でも検索は可能（履歴は表示しない）
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -189,20 +184,23 @@ export default function AskPage() {
               {t('search.subtitle')}
             </p>
             </div>
-            <button
-              onClick={() => {
-                setShowHistory(!showHistory)
-                if (!showHistory) loadHistory()
-              }}
-              className="px-6 py-3 bg-wood-dark text-wood-light border-4 border-wood-darker font-bold hover:bg-wood-darker shadow-wood-md transition-all transform hover:scale-105 rounded-lg"
-            >
-              {t('search.history')}
-            </button>
+            {/* 検索履歴ボタン（認証されている場合のみ表示） */}
+            {user && (
+              <button
+                onClick={() => {
+                  setShowHistory(!showHistory)
+                  if (!showHistory) loadHistory()
+                }}
+                className="px-6 py-3 bg-wood-dark text-wood-light border-4 border-wood-darker font-bold hover:bg-wood-darker shadow-wood-md transition-all transform hover:scale-105 rounded-lg"
+              >
+                {t('search.history')}
+              </button>
+            )}
           </div>
         </div>
 
-        {/* 検索履歴パネル */}
-        {showHistory && (
+        {/* 検索履歴パネル（認証されている場合のみ表示） */}
+        {user && showHistory && (
           <div className="mb-8 bg-wood-light border-4 border-wood-dark rounded-lg shadow-wood-lg p-6 animate-slideDown">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-xl font-bold text-wood-darkest">{t('search.history.title')}</h3>
