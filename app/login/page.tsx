@@ -75,6 +75,7 @@ function LoginForm() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
+                autoComplete="email"
                 className="w-full px-4 py-3 border-4 border-wood-dark rounded-lg bg-white text-wood-darkest focus:outline-none focus:ring-2 focus:ring-wood-dark"
                 placeholder={t('auth.login.emailPlaceholder')}
               />
@@ -90,6 +91,7 @@ function LoginForm() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
+                autoComplete="current-password"
                 className="w-full px-4 py-3 border-4 border-wood-dark rounded-lg bg-white text-wood-darkest focus:outline-none focus:ring-2 focus:ring-wood-dark"
                 placeholder={t('auth.login.passwordPlaceholder')}
               />

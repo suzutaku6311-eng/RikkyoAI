@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createServerClient } from '@/lib/supabase-client'
+import { createServerClient } from '@supabase/ssr'
+import { cookies } from 'next/headers'
 
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
@@ -15,7 +16,33 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const supabase = await createServerClient()
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+    if (!supabaseUrl || !supabaseAnonKey) {
+      return NextResponse.json(
+        { error: 'Supabase環境変数が設定されていません' },
+        { status: 500 }
+      )
+    }
+
+    // レスポンスオブジェクトを先に作成（Cookie設定のため）
+    const response = NextResponse.json({ success: true })
+
+    const cookieStore = await cookies()
+    const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
+      cookies: {
+        getAll() {
+          return cookieStore.getAll()
+        },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value, options }) => {
+            cookieStore.set(name, value, options)
+            response.cookies.set(name, value, options)
+          })
+        },
+      },
+    })
 
     // ログイン
     const { data, error } = await supabase.auth.signInWithPassword({
@@ -94,8 +121,8 @@ export async function POST(request: NextRequest) {
       role: profile?.role || 'user',
     })
 
-    // セッションをCookieに設定するため、NextResponseを作成
-    const response = NextResponse.json({
+    // 既存のレスポンスオブジェクトのボディを更新（Cookieは既に設定済み）
+    const responseData = {
       success: true,
       user: {
         id: data.user.id,
@@ -108,11 +135,17 @@ export async function POST(request: NextRequest) {
         refresh_token: data.session.refresh_token,
         expires_at: data.session.expires_at,
       },
-    })
+    }
 
-    // SupabaseのセッションCookieを設定
-    // createServerClientが自動的にCookieを設定するため、ここでは明示的に設定しない
-    // ただし、セッションが正しく設定されるように、レスポンスヘッダーを確認
+    response.headers.set('Content-Type', 'application/json')
+    response.body = new ReadableStream({
+      start(controller) {
+        const encoder = new TextEncoder()
+        const jsonData = JSON.stringify(responseData)
+        controller.enqueue(encoder.encode(jsonData))
+        controller.close()
+      },
+    })
 
     return response
   } catch (error: any) {
