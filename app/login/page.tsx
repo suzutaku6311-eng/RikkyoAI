@@ -1,11 +1,11 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, Suspense } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { useRouter, useSearchParams } from 'next/navigation'
 
-export default function LoginPage() {
+function LoginForm() {
   const { t } = useLanguage()
   const { login } = useAuth()
   const router = useRouter()
@@ -106,6 +106,23 @@ export default function LoginPage() {
         </div>
       </div>
     </main>
+  )
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={
+      <main className="min-h-screen p-8 bg-wood-pattern relative overflow-hidden flex items-center justify-center">
+        <div className="relative z-10 w-full max-w-md">
+          <div className="bg-wood-light p-8 border-4 border-wood-dark shadow-wood-lg rounded-lg text-center">
+            <div className="inline-block animate-pulse-gentle mb-4 text-6xl">🌳</div>
+            <p className="text-wood-dark">読み込み中...</p>
+          </div>
+        </div>
+      </main>
+    }>
+      <LoginForm />
+    </Suspense>
   )
 }
 

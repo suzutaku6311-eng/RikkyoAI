@@ -1,11 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getSupabaseServerClient } from '@/lib/supabase-server'
 
+export const dynamic = 'force-dynamic'
+export const runtime = 'nodejs'
+
 /**
  * 登録済みスプレッドシート一覧を取得
  */
 export async function GET(request: NextRequest) {
   try {
+    // ビルド時や環境変数が設定されていない場合は空配列を返す
+    if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
+      return NextResponse.json({ sources: [] })
+    }
+
     const supabase = getSupabaseServerClient()
 
     const { data: sources, error } = await supabase
