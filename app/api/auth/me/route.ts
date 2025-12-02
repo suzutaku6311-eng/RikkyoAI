@@ -83,28 +83,41 @@ export async function GET(request: NextRequest) {
       console.error('[Auth] ユーザーID:', user.id)
       console.error('[Auth] エラーコード:', profileError.code)
       console.error('[Auth] エラーメッセージ:', profileError.message)
+      console.error('[Auth] エラー詳細:', JSON.stringify(profileError, null, 2))
       
       // プロフィールが存在しない場合は、デフォルトのroleを返す
       // ただし、これは一時的な対応で、本来はuser_profilesテーブルにプロフィールを作成する必要がある
-      if (profileError.code === 'PGRST116') {
+      if (profileError.code === 'PGRST116' || profileError.message?.includes('No rows')) {
         console.warn('[Auth] プロフィールが存在しません。デフォルトのroleを返します。')
+        console.warn('[Auth] ユーザープロフィールを作成する必要があります。Supabase SQL Editorで以下を実行してください:')
+        console.warn(`[Auth] INSERT INTO public.user_profiles (id, email, name, role) VALUES ('${user.id}', '${user.email}', '${user.email?.split('@')[0] || 'User'}', 'admin') ON CONFLICT (id) DO UPDATE SET role = 'admin';`)
+        
         return NextResponse.json({
           success: true,
           user: {
             id: user.id,
             email: user.email,
             name: user.email?.split('@')[0] || 'User',
-            role: 'user', // デフォルトは'user'
+            role: 'user', // デフォルトは'user'（プロフィールが存在しない場合）
             is_active: true,
             last_login_at: null,
           },
         })
       }
       
-      return NextResponse.json(
-        { error: 'ユーザープロフィールの取得に失敗しました' },
-        { status: 500 }
-      )
+      // その他のエラー（RLSポリシーエラーなど）の場合も、デフォルトのroleを返す
+      console.warn('[Auth] プロフィール取得に失敗しましたが、デフォルトのroleを返します。')
+      return NextResponse.json({
+        success: true,
+        user: {
+          id: user.id,
+          email: user.email,
+          name: user.email?.split('@')[0] || 'User',
+          role: 'user', // デフォルトは'user'
+          is_active: true,
+          last_login_at: null,
+        },
+      })
     }
 
     console.log('[Auth] ユーザープロフィール取得成功:', {
