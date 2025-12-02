@@ -102,6 +102,22 @@ export async function POST(request: NextRequest) {
 
     if (profileError) {
       console.error('[Auth] プロフィール取得エラー:', profileError)
+      console.error('[Auth] エラーコード:', profileError.code)
+      console.error('[Auth] エラーメッセージ:', profileError.message)
+      console.error('[Auth] エラー詳細:', JSON.stringify(profileError, null, 2))
+      console.error('[Auth] ユーザーID:', data.user.id)
+      
+      // RLSポリシーの問題の可能性があるため、service_roleキーで再試行
+      // ただし、これは一時的な対応で、本来はRLSポリシーを修正する必要がある
+      console.warn('[Auth] プロフィール取得に失敗しました。RLSポリシーを確認してください。')
+    } else {
+      console.log('[Auth] プロフィール取得成功:', {
+        id: profile?.id,
+        email: profile?.email,
+        name: profile?.name,
+        role: profile?.role,
+        is_active: profile?.is_active,
+      })
     }
 
     // 最終ログイン時刻を更新
