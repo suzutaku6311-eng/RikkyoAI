@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { useAuth } from '@/contexts/AuthContext'
 import { useRouter } from 'next/navigation'
@@ -49,14 +49,7 @@ export default function AskPage() {
     }
   }, [user, authLoading, router])
 
-  // 検索履歴を読み込む（認証されている場合のみ）
-  useEffect(() => {
-    if (user && !authLoading) {
-      loadHistory()
-    }
-  }, [user, authLoading])
-
-  const loadHistory = async () => {
+  const loadHistory = useCallback(async () => {
     if (!user) {
       console.log('[Ask] ユーザーが認証されていないため、履歴を読み込みません。')
       return
@@ -79,7 +72,14 @@ export default function AskPage() {
     } finally {
       setLoadingHistory(false)
     }
-  }
+  }, [user, router])
+
+  // 検索履歴を読み込む（認証されている場合のみ）
+  useEffect(() => {
+    if (user && !authLoading) {
+      loadHistory()
+    }
+  }, [user, authLoading, loadHistory])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()

@@ -26,8 +26,8 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // レスポンスオブジェクトを先に作成（Cookie設定のため）
-    const response = NextResponse.json({ success: true })
+    // Cookieを追跡するための配列
+    const cookiesToSet: Array<{ name: string; value: string; options?: any }> = []
 
     const cookieStore = await cookies()
     const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
@@ -35,10 +35,10 @@ export async function POST(request: NextRequest) {
         getAll() {
           return cookieStore.getAll()
         },
-        setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) => {
+        setAll(cookies) {
+          cookies.forEach(({ name, value, options }) => {
             cookieStore.set(name, value, options)
-            response.cookies.set(name, value, options)
+            cookiesToSet.push({ name, value, options })
           })
         },
       },
@@ -121,7 +121,7 @@ export async function POST(request: NextRequest) {
       role: profile?.role || 'user',
     })
 
-    // 既存のレスポンスオブジェクトのボディを更新（Cookieは既に設定済み）
+    // レスポンスデータを作成
     const responseData = {
       success: true,
       user: {
@@ -137,17 +137,15 @@ export async function POST(request: NextRequest) {
       },
     }
 
-    response.headers.set('Content-Type', 'application/json')
-    response.body = new ReadableStream({
-      start(controller) {
-        const encoder = new TextEncoder()
-        const jsonData = JSON.stringify(responseData)
-        controller.enqueue(encoder.encode(jsonData))
-        controller.close()
-      },
+    // 新しいレスポンスを作成し、Cookieを設定
+    const finalResponse = NextResponse.json(responseData)
+    
+    // セッションCookieを設定
+    cookiesToSet.forEach(({ name, value, options }) => {
+      finalResponse.cookies.set(name, value, options)
     })
 
-    return response
+    return finalResponse
   } catch (error: any) {
     console.error('[Auth] 予期しないエラー:', error)
     return NextResponse.json(
