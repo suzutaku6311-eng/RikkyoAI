@@ -10,48 +10,73 @@ export async function getAuthenticatedUser() {
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
   if (!supabaseUrl || !supabaseAnonKey) {
+    console.error('[Auth] Supabase環境変数が設定されていません')
     return null
   }
 
-  const cookieStore = await cookies()
-  const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
-    cookies: {
-      getAll() {
-        return cookieStore.getAll()
+  try {
+    const cookieStore = await cookies()
+    const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
+      cookies: {
+        getAll() {
+          return cookieStore.getAll()
+        },
+        setAll(cookiesToSet) {
+          try {
+            cookiesToSet.forEach(({ name, value, options }) =>
+              cookieStore.set(name, value, options)
+            )
+          } catch {
+            // Server Componentsではcookieの設定はできない場合がある
+          }
+        },
       },
-      setAll(cookiesToSet) {
-        try {
-          cookiesToSet.forEach(({ name, value, options }) =>
-            cookieStore.set(name, value, options)
-          )
-        } catch {
-          // Server Componentsではcookieの設定はできない場合がある
-        }
-      },
-    },
-  })
+    })
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser()
 
-  if (!user) {
+    if (userError) {
+      console.error('[Auth] getUserエラー:', userError.message)
+      return null
+    }
+
+    if (!user) {
+      console.log('[Auth] ユーザーが認証されていません')
+      return null
+    }
+
+    // ユーザープロフィールを取得
+    const { data: profile, error: profileError } = await supabase
+      .from('user_profiles')
+      .select('*')
+      .eq('id', user.id)
+      .single()
+
+    if (profileError) {
+      console.error('[Auth] プロフィール取得エラー:', profileError.message)
+      // プロフィールが存在しない場合は、デフォルト値を返す
+      return {
+        id: user.id,
+        email: user.email || '',
+        name: user.email?.split('@')[0] || 'User',
+        role: 'user' as const,
+        is_active: true,
+      }
+    }
+
+    return {
+      id: user.id,
+      email: user.email || '',
+      name: profile?.name || user.email?.split('@')[0] || 'User',
+      role: (profile?.role as 'user' | 'admin' | 'super_admin') || 'user',
+      is_active: profile?.is_active ?? true,
+    }
+  } catch (error) {
+    console.error('[Auth] getAuthenticatedUserエラー:', error)
     return null
-  }
-
-  // ユーザープロフィールを取得
-  const { data: profile } = await supabase
-    .from('user_profiles')
-    .select('*')
-    .eq('id', user.id)
-    .single()
-
-  return {
-    id: user.id,
-    email: user.email || '',
-    name: profile?.name || user.email?.split('@')[0] || 'User',
-    role: (profile?.role as 'user' | 'admin' | 'super_admin') || 'user',
-    is_active: profile?.is_active ?? true,
   }
 }
 

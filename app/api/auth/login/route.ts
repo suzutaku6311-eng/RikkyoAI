@@ -76,15 +76,26 @@ export async function POST(request: NextRequest) {
         .eq('id', data.user.id)
     }
 
-    // アクセスログに記録
-    await supabase.from('access_logs').insert({
-      user_id: data.user.id,
-      action: 'login',
-      ip_address: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || null,
-      user_agent: request.headers.get('user-agent') || null,
+    // アクセスログに記録（エラーが発生しても続行）
+    try {
+      await supabase.from('access_logs').insert({
+        user_id: data.user.id,
+        action: 'login',
+        ip_address: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || null,
+        user_agent: request.headers.get('user-agent') || null,
+      })
+    } catch (logError) {
+      console.warn('[Auth] アクセスログの記録に失敗しました（続行します）:', logError)
+    }
+
+    console.log('[Auth] ログイン成功:', {
+      userId: data.user.id,
+      email: data.user.email,
+      role: profile?.role || 'user',
     })
 
-    return NextResponse.json({
+    // セッションをCookieに設定するため、NextResponseを作成
+    const response = NextResponse.json({
       success: true,
       user: {
         id: data.user.id,
@@ -98,6 +109,12 @@ export async function POST(request: NextRequest) {
         expires_at: data.session.expires_at,
       },
     })
+
+    // SupabaseのセッションCookieを設定
+    // createServerClientが自動的にCookieを設定するため、ここでは明示的に設定しない
+    // ただし、セッションが正しく設定されるように、レスポンスヘッダーを確認
+
+    return response
   } catch (error: any) {
     console.error('[Auth] 予期しないエラー:', error)
     return NextResponse.json(

@@ -38,12 +38,19 @@ export async function middleware(request: NextRequest) {
   } = await supabase.auth.getUser()
 
   // 保護が必要なパス
-  const protectedPaths = ['/admin', '/api/admin']
+  const protectedPaths = ['/admin', '/api/admin', '/ask', '/api/ask', '/api/search-history']
   const authPaths = ['/login']
+  const publicApiPaths = ['/api/auth/login', '/api/auth/logout', '/api/auth/me', '/api/health']
 
   const pathname = request.nextUrl.pathname
   const isProtectedPath = protectedPaths.some((path) => pathname.startsWith(path))
   const isAuthPath = authPaths.some((path) => pathname.startsWith(path))
+  const isPublicApiPath = publicApiPaths.some((path) => pathname.startsWith(path))
+
+  // 公開APIパスは認証チェックをスキップ
+  if (isPublicApiPath) {
+    return response
+  }
 
   // 保護されたパスにアクセスしているが、認証されていない場合
   if (isProtectedPath && !user) {

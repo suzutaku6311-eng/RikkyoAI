@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from 'react'
 import { useLanguage } from '@/contexts/LanguageContext'
+import { useAuth } from '@/contexts/AuthContext'
+import { useRouter } from 'next/navigation'
 
 type Source = {
   id: string
@@ -26,6 +28,8 @@ type SearchHistoryItem = {
 
 export default function AskPage() {
   const { t } = useLanguage()
+  const { user, loading: authLoading } = useAuth()
+  const router = useRouter()
   const [question, setQuestion] = useState('')
   const [loading, setLoading] = useState(false)
   const [answer, setAnswer] = useState<string | null>(null)
@@ -37,21 +41,41 @@ export default function AskPage() {
   const [sourcesPage, setSourcesPage] = useState(1)
   const [sourcesPerPage, setSourcesPerPage] = useState(5)
 
-  // 検索履歴を読み込む
+  // 認証チェック
   useEffect(() => {
-    loadHistory()
-  }, [])
+    if (!authLoading && !user) {
+      console.log('[Ask] ユーザーが認証されていません。ログインページにリダイレクトします。')
+      router.push('/login?redirect=/ask')
+    }
+  }, [user, authLoading, router])
+
+  // 検索履歴を読み込む（認証されている場合のみ）
+  useEffect(() => {
+    if (user && !authLoading) {
+      loadHistory()
+    }
+  }, [user, authLoading])
 
   const loadHistory = async () => {
+    if (!user) {
+      console.log('[Ask] ユーザーが認証されていないため、履歴を読み込みません。')
+      return
+    }
+
     setLoadingHistory(true)
     try {
       const response = await fetch('/api/search-history?limit=10')
       if (response.ok) {
         const data = await response.json()
         setHistory(data.history || [])
+      } else if (response.status === 401) {
+        console.warn('[Ask] 認証が必要です。ログインページにリダイレクトします。')
+        router.push('/login?redirect=/ask')
+      } else {
+        console.error('[Ask] 履歴読み込みエラー:', response.status, response.statusText)
       }
     } catch (err) {
-      console.error('履歴読み込みエラー:', err)
+      console.error('[Ask] 履歴読み込みエラー:', err)
     } finally {
       setLoadingHistory(false)
     }
