@@ -18,6 +18,14 @@ export async function GET(request: NextRequest) {
     }
 
     const cookieStore = await cookies()
+    
+    // Cookieの確認（デバッグ用）
+    const allCookies = cookieStore.getAll()
+    console.log('[Auth] 受信したCookie数:', allCookies.length)
+    allCookies.forEach(({ name }) => {
+      console.log('[Auth] Cookie:', name)
+    })
+    
     const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
       cookies: {
         getAll() {

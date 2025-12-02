@@ -50,6 +50,15 @@ export async function POST(request: NextRequest) {
       password,
     })
 
+    // signInWithPasswordの後、Cookieが設定されるまで少し待つ
+    // setAllコールバックが呼ばれるのを待つ
+    await new Promise(resolve => setTimeout(resolve, 100))
+
+    console.log('[Auth] 設定されたCookie数:', cookiesToSet.length)
+    cookiesToSet.forEach(({ name }) => {
+      console.log('[Auth] Cookie設定:', name)
+    })
+
     if (error) {
       console.error('[Auth] ログインエラー:', error)
       
@@ -141,9 +150,14 @@ export async function POST(request: NextRequest) {
     const finalResponse = NextResponse.json(responseData)
     
     // セッションCookieを設定
-    cookiesToSet.forEach(({ name, value, options }) => {
-      finalResponse.cookies.set(name, value, options)
-    })
+    if (cookiesToSet.length === 0) {
+      console.warn('[Auth] Cookieが設定されていません。セッションが正しく保存されない可能性があります。')
+    } else {
+      cookiesToSet.forEach(({ name, value, options }) => {
+        console.log('[Auth] Cookieをレスポンスに設定:', name)
+        finalResponse.cookies.set(name, value, options)
+      })
+    }
 
     return finalResponse
   } catch (error: any) {
