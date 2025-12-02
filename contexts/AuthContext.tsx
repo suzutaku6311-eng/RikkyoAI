@@ -76,8 +76,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       console.log('[Auth] ログイン成功、ユーザー情報を設定:', data.user)
       setUser(data.user)
 
-      // ログイン後、確実に最新のユーザー情報を取得
-      await refreshUser()
+      // ログイン後、Cookieが反映されるまで少し待ってからユーザー情報を再取得
+      // ただし、ログインAPIから返されたユーザー情報を優先的に使用
+      setTimeout(async () => {
+        try {
+          await refreshUser()
+        } catch (error) {
+          console.warn('[Auth] ユーザー情報の再取得に失敗しました（ログインAPIの情報を使用）:', error)
+        }
+      }, 500)
 
       router.push('/')
       router.refresh()
