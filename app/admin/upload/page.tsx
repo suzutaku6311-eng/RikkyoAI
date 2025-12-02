@@ -7,7 +7,7 @@ import { useAuth } from '@/contexts/AuthContext'
 
 export default function UploadPage() {
   const { t, language } = useLanguage()
-  const { user, loading: authLoading } = useAuth()
+  const { user, loading: authLoading, isAdmin } = useAuth()
   const router = useRouter()
   const [file, setFile] = useState<File | null>(null)
   const [title, setTitle] = useState('')
@@ -18,15 +18,24 @@ export default function UploadPage() {
   useEffect(() => {
     if (!authLoading) {
       if (!user) {
+        console.log('[Upload] ユーザーが認証されていません。ログインページにリダイレクトします。')
         router.push('/login?redirect=/admin/upload')
         return
       }
-      if (user.role !== 'admin' && user.role !== 'super_admin') {
-        setMessage({ type: 'error', text: language === 'ja' ? '管理者権限が必要です' : 'Admin privileges required' })
+      console.log('[Upload] ユーザー情報:', { 
+        id: user.id, 
+        email: user.email, 
+        role: user.role, 
+        isAdmin 
+      })
+      if (!isAdmin) {
+        console.error('[Upload] 管理者権限がありません。現在のrole:', user.role)
+        setMessage({ type: 'error', text: language === 'ja' ? `管理者権限が必要です。現在の権限: ${user.role}` : `Admin privileges required. Current role: ${user.role}` })
         return
       }
+      console.log('[Upload] 管理者権限を確認しました。')
     }
-  }, [user, authLoading, router, language])
+  }, [user, authLoading, isAdmin, router, language])
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0]

@@ -18,7 +18,7 @@ type Document = {
 
 export default function DocumentsPage() {
   const { t } = useLanguage()
-  const { user, loading: authLoading } = useAuth()
+  const { user, loading: authLoading, isAdmin } = useAuth()
   const router = useRouter()
   const [documents, setDocuments] = useState<Document[]>([])
   const [loading, setLoading] = useState(true)
@@ -30,15 +30,24 @@ export default function DocumentsPage() {
   useEffect(() => {
     if (!authLoading) {
       if (!user) {
+        console.log('[Documents] ユーザーが認証されていません。ログインページにリダイレクトします。')
         router.push('/login?redirect=/admin/documents')
         return
       }
-      if (user.role !== 'admin' && user.role !== 'super_admin') {
-        setError('管理者権限が必要です')
+      console.log('[Documents] ユーザー情報:', { 
+        id: user.id, 
+        email: user.email, 
+        role: user.role, 
+        isAdmin 
+      })
+      if (!isAdmin) {
+        console.error('[Documents] 管理者権限がありません。現在のrole:', user.role)
+        setError(`管理者権限が必要です。現在の権限: ${user.role}`)
         return
       }
+      console.log('[Documents] 管理者権限を確認しました。文書一覧を取得します。')
     }
-  }, [user, authLoading, router])
+  }, [user, authLoading, isAdmin, router])
 
   useEffect(() => {
     fetchDocuments()

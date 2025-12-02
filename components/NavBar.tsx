@@ -7,7 +7,7 @@ import LanguageSwitcher from './LanguageSwitcher'
 
 export default function NavBar() {
   const { t, language } = useLanguage()
-  const { user, logout, loading: authLoading } = useAuth()
+  const { user, logout, loading: authLoading, isAdmin } = useAuth()
 
   return (
     <nav className="bg-wood-dark border-b-4 border-wood-darker shadow-wood-md relative z-20">
@@ -43,7 +43,7 @@ export default function NavBar() {
                     >
                       {t('nav.search')}
                     </Link>
-                    {(user.role === 'admin' || user.role === 'super_admin') && (
+                    {isAdmin && (
                       <>
                         <Link
                           href="/admin/documents"

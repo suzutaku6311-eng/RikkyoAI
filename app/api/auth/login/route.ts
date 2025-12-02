@@ -25,8 +25,27 @@ export async function POST(request: NextRequest) {
 
     if (error) {
       console.error('[Auth] ログインエラー:', error)
+      
+      // エラーメッセージを日本語化
+      let errorMessage = 'ログインに失敗しました'
+      
+      if (error.message) {
+        const message = error.message.toLowerCase()
+        if (message.includes('invalid login credentials') || message.includes('invalid credentials')) {
+          errorMessage = 'メールアドレスまたはパスワードが正しくありません'
+        } else if (message.includes('email not confirmed')) {
+          errorMessage = 'メールアドレスが確認されていません。メールを確認してください。'
+        } else if (message.includes('user not found')) {
+          errorMessage = 'ユーザーが見つかりません。Supabaseでユーザーを作成してください。'
+        } else if (message.includes('too many requests')) {
+          errorMessage = 'ログイン試行回数が多すぎます。しばらく待ってから再度お試しください。'
+        } else {
+          errorMessage = error.message
+        }
+      }
+      
       return NextResponse.json(
-        { error: error.message || 'ログインに失敗しました' },
+        { error: errorMessage },
         { status: 401 }
       )
     }
